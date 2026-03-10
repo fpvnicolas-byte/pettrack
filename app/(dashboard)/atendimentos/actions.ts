@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
+import type { Prisma } from '@prisma/client';
 import { validateStageTransition, isLastStage } from '@/lib/stages/stage.validator';
 import { sendWhatsAppNow } from '@/lib/queue/whatsapp.worker';
 import { uploadAtendimentoMedia } from '@/lib/midia/upload';
@@ -57,7 +58,7 @@ export async function advanceStage(atendimentoId: string, formData?: FormData) {
   // 4. Atualizar banco
   const lastStage = isLastStage(nextStage, stages);
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     await tx.atendimento.update({
       where: { id: atendimentoId },
       data: {
