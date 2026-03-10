@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { PublicNavbar } from '@/components/layout/public-navbar';
 
 export const metadata = {
     title: 'Termos de Uso | VetTrack',
@@ -9,28 +10,7 @@ export default function TermsOfUsePage() {
     return (
         <div className="min-h-screen bg-[#f5f3ef] font-sans">
             {/* ── NAVBAR ── */}
-            <nav className="sticky top-0 z-50 bg-[#1a1a2e]/95 backdrop-blur-sm border-b border-white/5">
-                <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2">
-                        <span className="text-2xl">🐾</span>
-                        <span className="font-bold text-white text-lg tracking-tight">VetTrack</span>
-                    </Link>
-                    <div className="flex items-center gap-3">
-                        <Link
-                            href="/login"
-                            className="text-sm text-gray-400 hover:text-white transition-colors px-3 py-1.5"
-                        >
-                            Entrar
-                        </Link>
-                        <Link
-                            href="/planos"
-                            className="text-sm bg-vettrack-accent hover:opacity-90 text-white px-4 py-2 rounded-lg font-medium transition-opacity"
-                        >
-                            Ver planos
-                        </Link>
-                    </div>
-                </div>
-            </nav>
+            <PublicNavbar />
 
             {/* ── HERO ── */}
             <section className="bg-[#1a1a2e] pt-16 pb-20 px-5 text-center">
@@ -126,6 +106,7 @@ export default function TermsOfUsePage() {
                     <span className="font-bold text-gray-400">VetTrack</span>
                 </div>
                 <div className="flex flex-wrap justify-center gap-5 mb-6 text-xs">
+                    <Link href="/sobre" className="hover:text-gray-400 transition-colors">Sobre</Link>
                     <Link href="/planos" className="hover:text-gray-400 transition-colors">Planos</Link>
                     <Link href="/login" className="hover:text-gray-400 transition-colors">Entrar</Link>
                     <Link href="/register" className="hover:text-gray-400 transition-colors">Criar conta</Link>
