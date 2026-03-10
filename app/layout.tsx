@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" className={`${quicksand.variable}`}>
+    <html lang="pt-BR" className={`${quicksand.variable} scroll-smooth scroll-pt-20`}>
       <body className="font-sans antialiased bg-[#f8f9fc] text-vettrack-dark">{children}</body>
     </html>
   );
