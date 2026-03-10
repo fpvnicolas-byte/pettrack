@@ -3,8 +3,8 @@ import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import type Stripe from 'stripe';
 
-// Necessário para ler o raw body do webhook
-export const config = { api: { bodyParser: false } };
+// Necessário para ler o raw body do webhook no App Router
+export const runtime = 'nodejs';
 
 const PLANO_MAP: Record<string, 'BASICO' | 'PROFISSIONAL' | 'PREMIUM'> = {
   BASICO: 'BASICO',
