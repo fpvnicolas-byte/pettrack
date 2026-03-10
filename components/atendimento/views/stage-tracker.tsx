@@ -164,7 +164,13 @@ export function StageTracker({
                             </>
                         ) : (
                             <>
-                                <span className="font-bold tracking-wide">Finalizar: {nextStage?.label}</span>
+                                <span className="font-bold tracking-wide">
+                                    {currentStageIdx === 0
+                                        ? `Iniciar: ${nextStage?.label}`
+                                        : currentStageIdx >= stages.length - 2
+                                        ? `Concluir: ${nextStage?.label}`
+                                        : `Avançar para: ${nextStage?.label}`}
+                                </span>
                                 <ArrowRight className="w-5 h-5 opacity-90" />
                             </>
                         )}
