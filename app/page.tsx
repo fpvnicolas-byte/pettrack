@@ -43,12 +43,12 @@ export default async function LandingPage() {
       </nav>
 
       {/* ── HERO ASSIMÉTRICO ── */}
-      <section className="relative overflow-hidden bg-[#1a1a2e] text-white pt-24 pb-32 px-5">
+      <section className="relative overflow-hidden bg-[#1a1a2e] text-white pt-16 pb-20 md:pt-24 md:pb-32 px-5">
         <div className="absolute top-0 right-0 -mr-32 -mt-32 w-96 h-96 rounded-full bg-vettrack-accent/15 blur-[100px] pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 -ml-32 -mb-32 w-[30rem] h-[30rem] rounded-full bg-vettrack-accent/5 blur-[100px] pointer-events-none"></div>
 
-        <div className="max-w-6xl mx-auto grid md:grid-cols-[1.2fr_1fr] gap-12 items-center relative z-10">
-          <div className="text-left">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-[1.2fr_1fr] gap-10 md:gap-12 items-center relative z-10">
+          <div className="text-center md:text-left flex flex-col items-center md:items-start">
             <span className="inline-block bg-vettrack-accent/15 text-vettrack-accent text-xs font-bold px-4 py-1.5 rounded-full mb-6 tracking-wide uppercase border border-vettrack-accent/20">
               🐾 Especial para clínicas e petshops
             </span>
@@ -63,39 +63,74 @@ export default async function LandingPage() {
             <p className="text-lg md:text-xl text-gray-300 mb-10 leading-relaxed max-w-xl font-medium">
               Avançe o status do pet com 2 toques. O tutor recebe a notificação no WhatsApp automaticamente — sem baixar nada e sem ligar para a recepção.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto mt-2">
               <Link
                 href="/register"
-                className="bg-vettrack-accent hover:opacity-90 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-105 active:scale-95 shadow-xl shadow-vettrack-accent/20 text-center"
+                className="w-full sm:w-auto bg-vettrack-accent hover:opacity-90 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-105 active:scale-95 shadow-xl shadow-vettrack-accent/20 text-center"
               >
                 Testar sem compromisso
               </Link>
               <Link
                 href="/planos"
-                className="bg-white/5 hover:bg-white/10 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-colors border border-white/10 text-center"
+                className="w-full sm:w-auto bg-white/5 hover:bg-white/10 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-colors border border-white/10 text-center"
               >
                 Ver preços
               </Link>
             </div>
-            <p className="text-xs text-gray-500 mt-5 font-semibold">14 dias grátis. Cancela quando clicar em um botão.</p>
+            <p className="text-xs text-gray-500 mt-5 font-semibold">14 dias grátis. Cancela se não gostar.</p>
           </div>
 
-          <div className="relative w-full h-full min-h-[400px] hidden md:block">
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#111120] to-white/5 rounded-[3rem] border border-white/10 shadow-2xl overflow-hidden transform rotate-2 hover:rotate-0 transition-transform duration-500">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-vettrack-accent/20 rounded-full blur-2xl"></div>
-              <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(white 2px, transparent 2px)", backgroundSize: "24px 24px" }}></div>
-              <div className="absolute bottom-10 left-10 right-10 p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-[#dcf8c6]/20 flex items-center justify-center text-2xl">🐶</div>
-                  <div>
-                    <div className="text-white font-bold text-lg">Banho e tosa concluídos!</div>
-                    <div className="text-[#25d366] text-sm font-semibold mt-0.5">🔔 WhatsApp automático enviado</div>
+          <div className="relative w-full h-[350px] md:h-[450px] mt-10 md:mt-0 flex items-center justify-center">
+            {/* Mock Dashboard Card */}
+            <div className="absolute top-0 right-0 md:top-4 md:-right-8 w-4/5 md:w-full bg-white rounded-3xl shadow-2xl border border-gray-100 p-5 transform rotate-3 hover:rotate-1 transition-transform duration-500 z-10">
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex gap-3 items-center">
+                  <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-2xl border border-amber-100">🐕</div>
+                  <div className="text-left">
+                    <div className="font-bold text-vettrack-dark text-sm md:text-base">Max (Golden)</div>
+                    <div className="text-xs text-gray-400 font-medium">Banho & Tosa</div>
                   </div>
+                </div>
+                <div className="bg-vettrack-accent/10 text-vettrack-accent text-[10px] md:text-xs uppercase font-bold px-3 py-1 rounded-full hidden sm:block">
+                  Em progresso
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded-full bg-vettrack-success flex items-center justify-center text-white text-[10px] flex-shrink-0">✓</div>
+                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden"><div className="w-full h-full bg-vettrack-success"></div></div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded-full border-2 border-vettrack-accent flex items-center justify-center flex-shrink-0"><div className="w-2 h-2 rounded-full bg-vettrack-accent animate-pulse"></div></div>
+                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden relative"><div className="w-[45%] h-full bg-vettrack-accent"></div></div>
+                </div>
+                <div className="flex items-center gap-3 opacity-30">
+                  <div className="w-6 h-6 rounded-full bg-gray-200 flex-shrink-0"></div>
+                  <div className="flex-1 h-2 bg-gray-100 rounded-full"></div>
                 </div>
               </div>
             </div>
-            <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-vettrack-accent text-white rounded-[2rem] flex items-center justify-center text-4xl shadow-xl transform -rotate-6">
-              🛁
+
+            {/* Mock WhatsApp Overlay */}
+            <div className="absolute -bottom-8 left-0 md:-bottom-12 md:-left-12 w-[85%] md:w-[90%] bg-[#efeae2] rounded-3xl shadow-2xl border-[6px] border-white p-3 transform -rotate-3 hover:rotate-0 transition-transform duration-500 z-20 overflow-hidden">
+              <div className="bg-[#075e54] absolute top-0 left-0 w-full px-4 py-3 flex items-center gap-2 shadow-sm z-30">
+                <div className="w-8 h-8 rounded-full bg-white/20 flex flex-shrink-0 items-center justify-center text-sm">🏥</div>
+                <div className="text-left">
+                  <div className="text-white text-xs font-bold leading-tight">Clínica VetTrack</div>
+                  <div className="text-[#25d366] text-[9px] font-medium leading-tight tracking-wide">Comercial</div>
+                </div>
+              </div>
+              <div className="mt-14 space-y-3 pb-2 relative z-20">
+                <div className="bg-white rounded-xl rounded-tl-sm p-3 w-[90%] shadow-sm">
+                  <div className="text-[10px] text-gray-800 leading-relaxed font-semibold">Olá! O Max acabou de dar entrada para o banho. Avisaremos no próximo passo! 🛁</div>
+                  <div className="text-[8px] text-gray-400 text-right mt-1.5 font-bold">09:12</div>
+                </div>
+                <div className="bg-[#dcf8c6] rounded-xl rounded-tr-sm p-3 w-[85%] ml-auto shadow-sm">
+                  <div className="text-[10px] text-gray-800 leading-relaxed font-semibold">Fico no aguardo, obrigado equipe! ❤️</div>
+                  <div className="text-[8px] text-[#55b991] text-right mt-1.5 font-bold">09:15 ✓✓</div>
+                </div>
+              </div>
+              <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: "url('https://i.pinimg.com/736x/8c/98/99/8c98994518b575bfd8c949e91d20548b.jpg')", backgroundSize: 'cover' }}></div>
             </div>
           </div>
         </div>
@@ -166,7 +201,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── COMO FUNCIONA (ORGÂNICO) ── */}
-      <section className="py-24 px-5 bg-white relative overflow-hidden">
+      <section className="py-16 md:py-24 px-5 bg-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-[#f8f9fc] rounded-l-[5rem] -z-10 transform translate-x-1/2"></div>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
@@ -214,7 +249,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── SERVIÇOS SUPORTADOS (BENTO GRID) ── */}
-      <section className="py-24 px-5 bg-[#f8f9fc] rounded-[3rem] mx-2 md:mx-6 my-10 border border-gray-100 shadow-sm relative overflow-hidden">
+      <section className="py-16 md:py-24 px-5 bg-[#f8f9fc] rounded-[2rem] md:rounded-[3rem] mx-2 md:mx-6 my-10 border border-gray-100 shadow-sm relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: "radial-gradient(#00b09b 3px, transparent 3px)", backgroundSize: "32px 32px" }}></div>
         <div className="max-w-5xl mx-auto relative z-10">
           <div className="text-center mb-16">

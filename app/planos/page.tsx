@@ -37,7 +37,7 @@ export default function PlanosPage() {
       </nav>
 
       {/* HEADER */}
-      <section className="bg-[#1a1a2e] text-white pt-24 pb-32 px-5 text-center relative overflow-hidden">
+      <section className="bg-[#1a1a2e] text-white pt-16 pb-20 md:pt-24 md:pb-32 px-5 text-center relative overflow-hidden">
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-64 bg-vettrack-accent/10 blur-[100px] rounded-full pointer-events-none"></div>
         <div className="max-w-3xl mx-auto relative z-10">
           <span className="inline-block bg-white/10 text-white/80 text-[10px] font-bold px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase border border-white/10">
@@ -58,8 +58,8 @@ export default function PlanosPage() {
               <div
                 key={plano.id}
                 className={`relative bg-white rounded-[2.5rem] shadow-sm border flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${plano.destaque
-                    ? 'border-vettrack-accent ring-[4px] ring-vettrack-accent/20 shadow-xl shadow-vettrack-accent/10 transform scale-105 z-10'
-                    : 'border-gray-100'
+                  ? 'border-vettrack-accent ring-[4px] ring-vettrack-accent/20 shadow-xl shadow-vettrack-accent/10 transform scale-105 z-10'
+                  : 'border-gray-100'
                   }`}
               >
                 {plano.destaque && (

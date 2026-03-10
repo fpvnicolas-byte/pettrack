@@ -57,8 +57,13 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--background))]">
+    <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--background))] p-5">
       <div className="w-full max-w-md">
+        <div className="mb-6 flex justify-start">
+          <Link href="/" className="text-sm font-medium text-gray-500 hover:text-vettrack-accent flex items-center gap-2 transition-colors">
+            <span>←</span> Voltar para a Home
+          </Link>
+        </div>
         <div className="text-center mb-8">
           <div className="text-4xl mb-3">🐾</div>
           <h1 className="text-2xl font-bold text-vettrack-dark">Criar Conta</h1>
