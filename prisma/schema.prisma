@@ -1,0 +1,267 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ===== MULTI-TENANCY =====
+
+model Clinica {
+  id              String   @id @default(cuid())
+  nome            String
+  telefone        String?
+  whatsappPhoneId String?  @map("whatsapp_phone_id")
+  whatsappToken   String?  @map("whatsapp_token")
+  endereco        String?
+  logoUrl         String?  @map("logo_url")
+  plano                 Plano    @default(TRIAL)
+  stripeCustomerId      String?  @map("stripe_customer_id")
+  stripeSubscriptionId  String?  @map("stripe_subscription_id")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  usuarios     Usuario[]
+  tutores      Tutor[]
+  pets         Pet[]
+  atendimentos Atendimento[]
+  servicos     Servico[]
+
+  @@map("clinicas")
+}
+
+enum Plano {
+  TRIAL
+  BASICO
+  PROFISSIONAL
+  PREMIUM
+}
+
+model Usuario {
+  id        String   @id @default(cuid())
+  nome      String
+  email     String   @unique
+  role      Role     @default(PROFISSIONAL)
+  avatarUrl String?  @map("avatar_url")
+  clinicaId String   @map("clinica_id")
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  clinica      Clinica       @relation(fields: [clinicaId], references: [id])
+  atendimentos Atendimento[] @relation("profissional")
+
+  @@index([clinicaId])
+  @@map("usuarios")
+}
+
+enum Role {
+  ADMIN
+  VETERINARIO
+  PROFISSIONAL
+}
+
+// ===== ENTIDADES CORE =====
+
+model Tutor {
+  id        String   @id @default(cuid())
+  nome      String
+  telefone  String
+  email     String?
+  cpf       String?
+  clinicaId String   @map("clinica_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  clinica Clinica @relation(fields: [clinicaId], references: [id])
+  pets    Pet[]
+
+  @@unique([telefone, clinicaId])
+  @@index([clinicaId])
+  @@map("tutores")
+}
+
+model Pet {
+  id        String    @id @default(cuid())
+  nome      String
+  especie   Especie   @default(CANINO)
+  raca      String?
+  peso      Float?
+  dataNasc  DateTime? @map("data_nasc")
+  sexo      Sexo?
+  tutorId   String    @map("tutor_id")
+  clinicaId String    @map("clinica_id")
+  fotoUrl   String?   @map("foto_url")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  tutor        Tutor         @relation(fields: [tutorId], references: [id])
+  clinica      Clinica       @relation(fields: [clinicaId], references: [id])
+  atendimentos Atendimento[]
+
+  @@index([tutorId])
+  @@index([clinicaId])
+  @@map("pets")
+}
+
+enum Especie {
+  CANINO
+  FELINO
+  AVE
+  ROEDOR
+  REPTIL
+  OUTRO
+}
+
+enum Sexo {
+  MACHO
+  FEMEA
+}
+
+// ===== ATENDIMENTO =====
+
+model Servico {
+  id        String      @id @default(cuid())
+  nome      String
+  tipo      TipoServico
+  stages    Json        // StageDefinition[]
+  ativo     Boolean     @default(true)
+  clinicaId String      @map("clinica_id")
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  clinica      Clinica       @relation(fields: [clinicaId], references: [id])
+  atendimentos Atendimento[]
+
+  @@index([clinicaId])
+  @@map("servicos")
+}
+
+enum TipoServico {
+  BANHO_TOSA
+  CIRURGIA
+  CONSULTA
+  INTERNAMENTO
+  EXAME
+  VACINA
+  OUTRO
+}
+
+model Atendimento {
+  id             String            @id @default(cuid())
+  petId          String            @map("pet_id")
+  servicoId      String            @map("servico_id")
+  profissionalId String?           @map("profissional_id")
+  clinicaId      String            @map("clinica_id")
+  status         StatusAtendimento @default(AGUARDANDO)
+  currentStage   Int               @default(0) @map("current_stage")
+  observacoes    String?
+  checkinAt      DateTime?         @map("checkin_at")
+  conclusaoAt    DateTime?         @map("conclusao_at")
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+
+  pet          Pet            @relation(fields: [petId], references: [id])
+  servico      Servico        @relation(fields: [servicoId], references: [id])
+  profissional Usuario?       @relation("profissional", fields: [profissionalId], references: [id])
+  clinica      Clinica        @relation(fields: [clinicaId], references: [id])
+  historico    StageLog[]
+  midias       Midia[]
+  notificacoes Notificacao[]
+
+  @@index([clinicaId, status])
+  @@index([petId])
+  @@map("atendimentos")
+}
+
+enum StatusAtendimento {
+  AGUARDANDO
+  EM_ANDAMENTO
+  CONCLUIDO
+  CANCELADO
+}
+
+model StageLog {
+  id            String   @id @default(cuid())
+  atendimentoId String   @map("atendimento_id")
+  fromStage     Int      @map("from_stage")
+  toStage       Int      @map("to_stage")
+  stageName     String   @map("stage_name")
+  executadoPor  String?  @map("executado_por")
+  observacao    String?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  atendimento Atendimento @relation(fields: [atendimentoId], references: [id])
+
+  @@index([atendimentoId])
+  @@map("stage_logs")
+}
+
+// ===== NOTIFICAÇÕES =====
+
+model Notificacao {
+  id            String            @id @default(cuid())
+  atendimentoId String            @map("atendimento_id")
+  tipo          TipoNotificacao
+  canal         CanalNotificacao  @default(WHATSAPP)
+  templateName  String            @map("template_name")
+  variaveis     Json
+  midiaUrl      String?           @map("midia_url")
+  waMessageId   String?           @map("wa_message_id")
+  status        StatusNotificacao @default(PENDENTE)
+  enviadoAt     DateTime?         @map("enviado_at")
+  entregueAt    DateTime?         @map("entregue_at")
+  lidoAt        DateTime?         @map("lido_at")
+  erroMsg       String?           @map("erro_msg")
+  createdAt     DateTime          @default(now()) @map("created_at")
+
+  atendimento Atendimento @relation(fields: [atendimentoId], references: [id])
+
+  @@index([atendimentoId])
+  @@index([status])
+  @@map("notificacoes")
+}
+
+enum TipoNotificacao {
+  STATUS_UPDATE
+  STATUS_MEDIA
+  CONCLUSAO
+  LEMBRETE
+}
+
+enum CanalNotificacao {
+  WHATSAPP
+  SMS
+  EMAIL
+}
+
+enum StatusNotificacao {
+  PENDENTE
+  ENVIADO
+  ENTREGUE
+  LIDO
+  ERRO
+}
+
+// ===== MÍDIA =====
+
+model Midia {
+  id            String    @id @default(cuid())
+  atendimentoId String    @map("atendimento_id")
+  tipo          TipoMidia
+  url           String
+  thumbnailUrl  String?   @map("thumbnail_url")
+  tamanho       Int?
+  stageName     String?   @map("stage_name")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  atendimento Atendimento @relation(fields: [atendimentoId], references: [id])
+
+  @@index([atendimentoId])
+  @@map("midias")
+}
+
+enum TipoMidia {
+  FOTO
+  VIDEO
+}
