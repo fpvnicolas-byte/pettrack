@@ -17,7 +17,7 @@ function formatPreco(centavos: number) {
 
 export default function PlanosPage() {
   return (
-    <div className="min-h-screen bg-[#f5f3ef] font-sans">
+    <div className="min-h-screen bg-[#f8f9fc] font-sans">
       {/* NAVBAR */}
       <nav className="sticky top-0 z-50 bg-[#1a1a2e]/95 backdrop-blur-sm border-b border-white/5">
         <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
@@ -29,7 +29,7 @@ export default function PlanosPage() {
             <Link href="/login" className="text-sm text-gray-400 hover:text-white transition-colors px-3 py-1.5">
               Entrar
             </Link>
-            <Link href="/register" className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+            <Link href="/register" className="text-sm bg-vettrack-accent hover:opacity-90 text-white px-4 py-2 rounded-lg font-medium transition-opacity">
               Criar conta
             </Link>
           </div>
@@ -37,32 +37,35 @@ export default function PlanosPage() {
       </nav>
 
       {/* HEADER */}
-      <section className="bg-[#1a1a2e] text-white py-16 px-5 text-center">
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Planos e Preços</h1>
-          <p className="text-gray-400 text-lg">
-            Comece grátis por 14 dias. Sem cartão de crédito. Cancele quando quiser.
+      <section className="bg-[#1a1a2e] text-white pt-24 pb-32 px-5 text-center relative overflow-hidden">
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-64 bg-vettrack-accent/10 blur-[100px] rounded-full pointer-events-none"></div>
+        <div className="max-w-3xl mx-auto relative z-10">
+          <span className="inline-block bg-white/10 text-white/80 text-[10px] font-bold px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase border border-white/10">
+            Transparência total
+          </span>
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">Planos simples para clínicas incríveis</h1>
+          <p className="text-gray-300 text-xl font-medium">
+            Comece grátis por 14 dias sem cartão. Cancele com 1 clique se não amar a ferramenta.
           </p>
         </div>
       </section>
 
       {/* CARDS */}
-      <section className="py-16 px-5">
+      <section className="py-24 px-5 -mt-20 relative z-20">
         <div className="max-w-6xl mx-auto">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
             {PLANOS.map((plano) => (
               <div
                 key={plano.id}
-                className={`relative bg-white rounded-2xl shadow-sm border flex flex-col ${
-                  plano.destaque
-                    ? 'border-blue-500 ring-2 ring-blue-500/20 shadow-blue-100'
+                className={`relative bg-white rounded-[2.5rem] shadow-sm border flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${plano.destaque
+                    ? 'border-vettrack-accent ring-[4px] ring-vettrack-accent/20 shadow-xl shadow-vettrack-accent/10 transform scale-105 z-10'
                     : 'border-gray-100'
-                }`}
+                  }`}
               >
                 {plano.destaque && (
-                  <div className="absolute -top-3 left-0 right-0 flex justify-center">
-                    <span className="bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                      Mais popular
+                  <div className="absolute -top-4 left-0 right-0 flex justify-center">
+                    <span className="bg-vettrack-accent text-white text-[10px] uppercase tracking-widest font-bold px-5 py-2 rounded-full shadow-lg shadow-vettrack-accent/30 flex items-center gap-1.5">
+                      ⭐ Escolha de 80% das clínicas
                     </span>
                   </div>
                 )}
@@ -102,11 +105,10 @@ export default function PlanosPage() {
                   {plano.ctaHref ? (
                     <Link
                       href={plano.ctaHref}
-                      className={`w-full text-center py-3 px-4 rounded-xl font-semibold text-sm transition-colors ${
-                        plano.destaque
-                          ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                          : 'bg-[#1a1a2e] hover:bg-[#2a2a4e] text-white'
-                      }`}
+                      className={`w-full text-center py-3 px-4 rounded-xl font-semibold text-sm transition-all ${plano.destaque
+                        ? 'bg-vettrack-accent hover:opacity-90 text-white'
+                        : 'bg-[#1a1a2e] hover:bg-[#2a2a4e] text-white'
+                        }`}
                     >
                       {plano.cta}
                     </Link>
@@ -168,7 +170,7 @@ export default function PlanosPage() {
           <p className="text-gray-400 mb-8">14 dias grátis, sem compromisso.</p>
           <Link
             href="/register"
-            className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-10 py-4 rounded-xl font-semibold text-lg transition-colors"
+            className="inline-block bg-vettrack-accent hover:opacity-90 text-white px-10 py-4 rounded-xl font-semibold text-lg transition-opacity"
           >
             Criar conta grátis
           </Link>

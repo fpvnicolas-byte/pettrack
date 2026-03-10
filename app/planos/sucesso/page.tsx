@@ -17,7 +17,7 @@ export default function SucessoPage() {
         </p>
         <Link
           href="/atendimentos"
-          className="block w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-semibold transition-colors text-sm"
+          className="block w-full bg-vettrack-accent hover:opacity-90 text-white py-3 rounded-xl font-semibold transition-opacity text-sm"
         >
           Ir para o dashboard
         </Link>

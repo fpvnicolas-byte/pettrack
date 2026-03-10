@@ -13,7 +13,7 @@ const config: Config = {
         ring: 'rgb(var(--ring) / <alpha-value>)',
         background: 'rgb(var(--background) / <alpha-value>)',
         foreground: 'rgb(var(--foreground) / <alpha-value>)',
-        
+
         vettrack: {
           /* Dark Teal - Headers and key text */
           dark: '#0F2328',
@@ -28,7 +28,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ['DM Sans', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-quicksand)', 'system-ui', 'sans-serif'],
       },
     },
   },

@@ -199,7 +199,7 @@ export function PetsPainel({ initialData, tutores }: PetsPainelProps) {
                       <div className="text-[11px] text-vettrack-accent">{pet.tutor.telefone}</div>
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className="inline-flex items-center gap-1 text-xs font-medium bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">
+                      <span className="inline-flex items-center gap-1 text-xs font-medium bg-vettrack-accent/10 text-vettrack-accent px-2 py-0.5 rounded-full">
                         📋 {pet._count.atendimentos}
                       </span>
                     </td>
@@ -207,7 +207,7 @@ export function PetsPainel({ initialData, tutores }: PetsPainelProps) {
                       <div className="flex items-center gap-2 justify-end">
                         <button
                           onClick={() => setModal({ type: 'edit', pet })}
-                          className="text-xs text-gray-400 hover:text-vettrack-accent transition-colors px-2 py-1 rounded-lg hover:bg-blue-50"
+                          className="text-xs text-gray-400 hover:text-vettrack-accent transition-colors px-2 py-1 rounded-lg hover:bg-vettrack-accent/10"
                         >
                           Editar
                         </button>

@@ -48,11 +48,10 @@ export function CheckoutButton({ planoId, stripePriceId, label, destaque }: Chec
     <button
       onClick={handleClick}
       disabled={loading}
-      className={`w-full py-3 px-4 rounded-xl font-semibold text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
-        destaque
-          ? 'bg-blue-500 hover:bg-blue-600 text-white'
+      className={`w-full py-3 px-4 rounded-xl font-semibold text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${destaque
+          ? 'bg-vettrack-accent hover:opacity-90 text-white'
           : 'bg-[#1a1a2e] hover:bg-[#2a2a4e] text-white'
-      }`}
+        }`}
     >
       {loading ? 'Aguarde...' : label}
     </button>
