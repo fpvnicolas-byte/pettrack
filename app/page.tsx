@@ -336,13 +336,13 @@ export default async function LandingPage() {
           <span className="text-xl">🐾</span>
           <span className="font-bold text-gray-400">VetTrack</span>
         </div>
-        <div className="flex flex-wrap justify-center gap-5 mb-6 text-xs">
-          <Link href="/sobre" className="hover:text-gray-400 transition-colors">Sobre</Link>
-          <Link href="/planos" className="hover:text-gray-400 transition-colors">Planos</Link>
-          <Link href="/login" className="hover:text-gray-400 transition-colors">Entrar</Link>
-          <Link href="/register" className="hover:text-gray-400 transition-colors">Criar conta</Link>
-          <Link href="/privacidade" className="hover:text-gray-400 transition-colors">Privacidade</Link>
-          <Link href="/termos" className="hover:text-gray-400 transition-colors">Termos de Uso</Link>
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-5 mb-6 text-sm sm:text-xs">
+          <Link href="/sobre" className="p-2 sm:p-0 hover:text-gray-400 transition-colors">Sobre</Link>
+          <Link href="/planos" className="p-2 sm:p-0 hover:text-gray-400 transition-colors">Planos</Link>
+          <Link href="/login" className="p-2 sm:p-0 hover:text-gray-400 transition-colors">Entrar</Link>
+          <Link href="/register" className="p-2 sm:p-0 hover:text-gray-400 transition-colors">Criar conta</Link>
+          <Link href="/privacidade" className="p-2 sm:p-0 hover:text-gray-400 transition-colors">Privacidade</Link>
+          <Link href="/termos" className="p-2 sm:p-0 hover:text-gray-400 transition-colors">Termos de Uso</Link>
         </div>
         <p className="text-xs text-gray-700">© {new Date().getFullYear()} VetTrack. Todos os direitos reservados.</p>
       </footer>

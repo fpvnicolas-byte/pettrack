@@ -25,7 +25,7 @@ export default async function DashboardLayout({
     : null;
 
   return (
-    <div className="flex h-screen bg-[rgb(var(--background))]">
+    <div className="flex flex-col md:flex-row h-[100dvh] bg-[rgb(var(--background))] overflow-hidden">
       <Sidebar
         usuario={{
           nome: usuario.nome,

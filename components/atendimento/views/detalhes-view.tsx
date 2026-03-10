@@ -76,7 +76,7 @@ export function DetalhesView({
 
             {/* Mobile Back Button */}
             <div className="md:hidden mb-4">
-                <button onClick={onVoltarParaFila} className="flex items-center gap-2 text-sm font-bold text-gray-500 active:scale-95 transition-all w-fit py-2 pr-4 bg-white rounded-xl shadow-sm pl-3">
+                <button onClick={onVoltarParaFila} className="flex items-center gap-2 text-sm font-bold text-gray-500 active:scale-95 transition-all w-fit py-3 pr-5 bg-white rounded-xl shadow-sm pl-4">
                     <ArrowLeft className="w-4 h-4" /> Voltar para Fila
                 </button>
             </div>

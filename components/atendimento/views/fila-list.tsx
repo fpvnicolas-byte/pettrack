@@ -40,7 +40,7 @@ export function FilaList({
                 <button
                     onClick={() => setAba('ativos')}
                     className={cn(
-                        'flex-1 py-1.5 text-xs font-bold rounded-lg transition-all',
+                        'flex-1 py-2.5 md:py-2 text-xs font-bold rounded-lg transition-all',
                         aba === 'ativos' ? 'bg-white text-vettrack-dark shadow-sm' : 'text-gray-500 hover:text-gray-700'
                     )}
                 >
@@ -52,7 +52,7 @@ export function FilaList({
                 <button
                     onClick={() => setAba('finalizados')}
                     className={cn(
-                        'flex-1 py-1.5 text-xs font-bold rounded-lg transition-all',
+                        'flex-1 py-2.5 md:py-2 text-xs font-bold rounded-lg transition-all',
                         aba === 'finalizados' ? 'bg-white text-vettrack-success shadow-sm' : 'text-gray-500 hover:text-gray-700'
                     )}
                 >
@@ -70,7 +70,7 @@ export function FilaList({
                         <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Em Andamento</h3>
                         <button
                             onClick={onNovoClick}
-                            className="flex items-center gap-1 text-xs bg-vettrack-accent/10 text-vettrack-accent px-2.5 py-1.5 rounded-lg hover:bg-vettrack-accent hover:text-white transition-colors font-bold"
+                            className="flex items-center gap-1.5 text-xs bg-vettrack-accent/10 text-vettrack-accent px-3.5 py-2.5 md:px-2.5 md:py-1.5 rounded-lg hover:bg-vettrack-accent hover:text-white transition-colors font-bold"
                         >
                             <Plus className="w-3.5 h-3.5" />
                             Novo

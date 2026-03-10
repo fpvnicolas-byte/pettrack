@@ -116,7 +116,7 @@ export function StageTracker({
                                     <div className="flex items-center gap-3 pl-16 py-2">
                                         <button
                                             onClick={onAddStageClick}
-                                            className="flex items-center gap-1.5 text-xs font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 border border-amber-200 hover:border-amber-300 px-3 py-2 rounded-xl transition-all active:scale-[0.97]"
+                                            className="flex items-center gap-1.5 text-xs font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 border border-amber-200 hover:border-amber-300 px-4 py-3 md:px-3 md:py-2 rounded-xl transition-all active:scale-[0.97]"
                                         >
                                             <Plus className="w-3.5 h-3.5" />
                                             Inserir estágio extra
@@ -134,65 +134,65 @@ export function StageTracker({
                 <div className="mt-8 bg-white border border-gray-100 shadow-sm rounded-3xl overflow-hidden p-1">
                     {nextStageAllowsMedia && (
                         uploadMidiaPermitido ? (
-                        <div className="p-4 bg-gray-50/50 rounded-[1.5rem] mb-1">
-                            <div className="flex items-center justify-between mb-3 px-1">
-                                <span className="text-sm font-bold text-gray-600 block flex items-center gap-2">
-                                    <ImagePlus className="w-4 h-4" /> Anexar Mídia (Opcional)
-                                </span>
-                                <span className="text-[10px] font-bold text-vettrack-accent uppercase tracking-wider bg-vettrack-accent/10 px-2 py-0.5 rounded">Tutor Ama ver!</span>
-                            </div>
-
-                            {mediaPreview ? (
-                                <div className="relative rounded-2xl overflow-hidden border-2 border-vettrack-accent/20 group">
-                                    {mediaFile?.type.startsWith('video') ? (
-                                        <video src={mediaPreview} className="w-full h-40 object-cover" controls />
-                                    ) : (
-                                        <img src={mediaPreview} alt="preview" className="w-full h-40 object-cover" />
-                                    )}
-                                    <button
-                                        onClick={onClearMedia}
-                                        className="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 backdrop-blur-md transition-all scale-95 hover:scale-100"
-                                    >
-                                        <X className="w-4 h-4" />
-                                    </button>
+                            <div className="p-4 bg-gray-50/50 rounded-[1.5rem] mb-1">
+                                <div className="flex items-center justify-between mb-3 px-1">
+                                    <span className="text-sm font-bold text-gray-600 block flex items-center gap-2">
+                                        <ImagePlus className="w-4 h-4" /> Anexar Mídia (Opcional)
+                                    </span>
+                                    <span className="text-[10px] font-bold text-vettrack-accent uppercase tracking-wider bg-vettrack-accent/10 px-2 py-0.5 rounded">Tutor Ama ver!</span>
                                 </div>
-                            ) : (
-                                <button
-                                    onClick={triggerFileSelect}
-                                    className="w-full border-2 border-dashed border-gray-300 hover:border-vettrack-accent hover:bg-vettrack-accent/5 rounded-2xl py-6 flex flex-col items-center justify-center text-gray-500 hover:text-vettrack-accent transition-all active:scale-[0.98]"
-                                >
-                                    <div className="w-12 h-12 rounded-full bg-white shadow-sm mb-2 flex items-center justify-center">
-                                        <ImagePlus className="w-6 h-6" />
+
+                                {mediaPreview ? (
+                                    <div className="relative rounded-2xl overflow-hidden border-2 border-vettrack-accent/20 group">
+                                        {mediaFile?.type.startsWith('video') ? (
+                                            <video src={mediaPreview} className="w-full h-40 object-cover" controls />
+                                        ) : (
+                                            <img src={mediaPreview} alt="preview" className="w-full h-40 object-cover" />
+                                        )}
+                                        <button
+                                            onClick={onClearMedia}
+                                            className="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 backdrop-blur-md transition-all scale-95 hover:scale-100"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
                                     </div>
-                                    <span className="text-sm font-bold">Toque para câmera/galeria</span>
-                                    <span className="text-[11px] opacity-70 mt-1">Imagens ou vídeos curtos</span>
-                                </button>
-                            )}
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept="image/*,video/*"
-                                onChange={(e) => {
-                                    onMediaChange(e);
-                                    // Clear the input value so the same file can be selected again if removed
-                                    if (e.target) e.target.value = '';
-                                }}
-                                className="hidden"
-                            />
-                        </div>
+                                ) : (
+                                    <button
+                                        onClick={triggerFileSelect}
+                                        className="w-full border-2 border-dashed border-gray-300 hover:border-vettrack-accent hover:bg-vettrack-accent/5 rounded-2xl py-6 flex flex-col items-center justify-center text-gray-500 hover:text-vettrack-accent transition-all active:scale-[0.98]"
+                                    >
+                                        <div className="w-12 h-12 rounded-full bg-white shadow-sm mb-2 flex items-center justify-center">
+                                            <ImagePlus className="w-6 h-6" />
+                                        </div>
+                                        <span className="text-sm font-bold">Toque para câmera/galeria</span>
+                                        <span className="text-[11px] opacity-70 mt-1">Imagens ou vídeos curtos</span>
+                                    </button>
+                                )}
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*,video/*"
+                                    onChange={(e) => {
+                                        onMediaChange(e);
+                                        // Clear the input value so the same file can be selected again if removed
+                                        if (e.target) e.target.value = '';
+                                    }}
+                                    className="hidden"
+                                />
+                            </div>
                         ) : (
-                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-[1.5rem] mb-1 flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-                                <ImagePlus className="w-4 h-4 text-amber-600" />
+                            <div className="p-4 bg-amber-50 border border-amber-200 rounded-[1.5rem] mb-1 flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                                    <ImagePlus className="w-4 h-4 text-amber-600" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-bold text-amber-800">Fotos e vídeos não disponíveis no Trial</p>
+                                    <p className="text-[11px] text-amber-600 mt-0.5">Faça upgrade para o plano Profissional para enviar mídia aos tutores.</p>
+                                </div>
+                                <a href="/planos" className="text-[11px] font-bold text-white bg-amber-500 hover:bg-amber-600 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap flex-shrink-0">
+                                    Ver planos
+                                </a>
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-bold text-amber-800">Fotos e vídeos não disponíveis no Trial</p>
-                                <p className="text-[11px] text-amber-600 mt-0.5">Faça upgrade para o plano Profissional para enviar mídia aos tutores.</p>
-                            </div>
-                            <a href="/planos" className="text-[11px] font-bold text-white bg-amber-500 hover:bg-amber-600 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap flex-shrink-0">
-                                Ver planos
-                            </a>
-                        </div>
                         )
                     )}
 
@@ -211,8 +211,8 @@ export function StageTracker({
                                     {currentStageIdx === 0
                                         ? `Iniciar: ${nextStage?.label}`
                                         : currentStageIdx >= stages.length - 2
-                                        ? `Concluir: ${nextStage?.label}`
-                                        : `Avançar para: ${nextStage?.label}`}
+                                            ? `Concluir: ${nextStage?.label}`
+                                            : `Avançar para: ${nextStage?.label}`}
                                 </span>
                                 <ArrowRight className="w-5 h-5 opacity-90" />
                             </>

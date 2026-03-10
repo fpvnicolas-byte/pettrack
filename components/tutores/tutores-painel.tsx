@@ -139,7 +139,7 @@ export function TutoresPainel({ initialData }: TutoresPainelProps) {
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-100">
@@ -175,13 +175,13 @@ export function TutoresPainel({ initialData }: TutoresPainelProps) {
                     <div className="flex items-center gap-2 justify-end">
                       <button
                         onClick={() => setModal({ type: 'edit', tutor })}
-                        className="text-xs text-gray-400 hover:text-vettrack-accent transition-colors px-2 py-1 rounded-lg hover:bg-vettrack-accent/10"
+                        className="text-xs font-semibold text-gray-400 hover:text-vettrack-accent transition-colors px-3 py-2 md:px-2 md:py-1 rounded-lg hover:bg-vettrack-accent/10"
                       >
                         Editar
                       </button>
                       <button
                         onClick={() => { setError(null); setModal({ type: 'delete', tutor }); }}
-                        className="text-xs text-gray-400 hover:text-red-500 transition-colors px-2 py-1 rounded-lg hover:bg-red-50"
+                        className="text-xs font-semibold text-gray-400 hover:text-red-500 transition-colors px-3 py-2 md:px-2 md:py-1 rounded-lg hover:bg-red-50"
                       >
                         Remover
                       </button>

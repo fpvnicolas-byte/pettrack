@@ -14,6 +14,13 @@ export const metadata: Metadata = {
   description: 'Sistema de acompanhamento de atendimentos veterinários com notificação via WhatsApp',
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export default function RootLayout({
   children,
 }: {
