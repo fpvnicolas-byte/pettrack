@@ -3,9 +3,11 @@
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 import { validateStageTransition, isLastStage } from '@/lib/stages/stage.validator';
+import { getEffectiveStages, canInsertCustomStage } from '@/lib/stages/stage.config';
 import { sendWhatsAppNow } from '@/lib/queue/whatsapp.worker';
 import { uploadAtendimentoMedia } from '@/lib/midia/upload';
-import type { StageDefinition } from '@/types';
+import { getLimites } from '@/lib/planos.limits';
+import type { StageDefinition, CustomStageInput } from '@/types';
 import { revalidatePath } from 'next/cache';
 
 export async function advanceStage(atendimentoId: string, formData?: FormData) {
@@ -25,7 +27,9 @@ export async function advanceStage(atendimentoId: string, formData?: FormData) {
 
   if (!atendimento) throw new Error('Atendimento não encontrado');
 
-  const stages = atendimento.servico.stages as unknown as StageDefinition[];
+  const limites = getLimites(atendimento.clinica.plano);
+
+  const stages = getEffectiveStages(atendimento);
   const nextStage = atendimento.currentStage + 1;
 
   // 2. Validar
@@ -37,6 +41,9 @@ export async function advanceStage(atendimentoId: string, formData?: FormData) {
   let mediaType: 'image' | 'video' | undefined;
 
   const mediaFile = formData?.get('media') as File | null;
+  if (mediaFile && mediaFile.size > 0 && !limites.uploadMidia) {
+    throw new Error('Upload de fotos e vídeos não está disponível no plano Trial. Faça upgrade para o plano Profissional.');
+  }
   if (mediaFile && mediaFile.size > 0) {
     const result = await uploadAtendimentoMedia(atendimentoId, mediaFile, atendimento.clinicaId);
     mediaUrl = result.url;
@@ -84,7 +91,13 @@ export async function advanceStage(atendimentoId: string, formData?: FormData) {
   let whatsappStatus: 'sent' | 'error' | 'skipped' = 'skipped';
 
   if (stage.autoNotify) {
-    const result = await sendWhatsAppNow({ atendimentoId, stageId: stage.id, mediaUrl, mediaType });
+    const result = await sendWhatsAppNow({
+      atendimentoId,
+      stageId: stage.id,
+      whatsappMsg: stage.whatsappMsg,
+      mediaUrl,
+      mediaType,
+    });
     whatsappStatus = result.success ? 'sent' : 'error';
   }
 
@@ -127,6 +140,18 @@ export async function createAtendimento(formData: FormData) {
   const servicoId = formData.get('servicoId') as string;
   const observacoes = formData.get('observacoes') as string || null;
 
+  // Verificar limite de atendimentos do plano
+  const clinica = await prisma.clinica.findUnique({ where: { id: clinicaId }, select: { plano: true } });
+  if (clinica) {
+    const limites = getLimites(clinica.plano);
+    if (limites.maxAtendimentos !== null) {
+      const total = await prisma.atendimento.count({ where: { clinicaId } });
+      if (total >= limites.maxAtendimentos) {
+        throw new Error(`Limite de ${limites.maxAtendimentos} atendimentos atingido no plano Trial. Faça upgrade para continuar.`);
+      }
+    }
+  }
+
   const atendimento = await prisma.atendimento.create({
     data: {
       petId,
@@ -142,4 +167,55 @@ export async function createAtendimento(formData: FormData) {
 
   revalidatePath('/atendimentos');
   return { success: true, id: atendimento.id };
+}
+
+export async function insertCustomStage(
+  atendimentoId: string,
+  input: CustomStageInput
+): Promise<{ success: true; effectiveStages: StageDefinition[] }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Não autenticado');
+
+  const atendimento = await prisma.atendimento.findUnique({
+    where: { id: atendimentoId },
+    include: { servico: true },
+  });
+  if (!atendimento) throw new Error('Atendimento não encontrado');
+
+  if (!canInsertCustomStage(atendimento.servico.tipo)) {
+    throw new Error('Inserção de estágio extra não permitida para este tipo de serviço');
+  }
+
+  const currentStages = getEffectiveStages(atendimento);
+
+  if (atendimento.currentStage >= currentStages.length - 1) {
+    throw new Error('Não é possível inserir estágio após o estágio final');
+  }
+
+  const newStage: StageDefinition = {
+    id: `custom_${Date.now()}`,
+    label: input.label.trim(),
+    whatsappMsg: input.whatsappMsg.trim(),
+    color: '#F59E0B',
+    mediaAllowed: input.mediaAllowed,
+    autoNotify: input.autoNotify,
+    isCustom: true,
+  };
+
+  // Insere imediatamente após o estágio atual
+  const insertAt = atendimento.currentStage + 1;
+  const newStages: StageDefinition[] = [
+    ...currentStages.slice(0, insertAt),
+    newStage,
+    ...currentStages.slice(insertAt),
+  ];
+
+  await prisma.atendimento.update({
+    where: { id: atendimentoId },
+    data: { customStages: newStages as any },
+  });
+
+  revalidatePath('/atendimentos');
+  return { success: true, effectiveStages: newStages };
 }

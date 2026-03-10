@@ -1,5 +1,27 @@
 import type { StageDefinition } from '@/types';
 
+// Tipos de serviço que permitem inserção de estágios extras pelo profissional
+export const CUSTOM_STAGE_ALLOWED_TYPES: string[] = ['CIRURGIA', 'INTERNAMENTO'];
+
+export function canInsertCustomStage(tipoServico: string): boolean {
+  return CUSTOM_STAGE_ALLOWED_TYPES.includes(tipoServico);
+}
+
+/**
+ * Retorna os estágios efetivos de um atendimento.
+ * Se o atendimento possui customStages (estágios inseridos em runtime),
+ * eles têm precedência sobre os estágios padrão do serviço.
+ */
+export function getEffectiveStages(atendimento: {
+  customStages?: unknown;
+  servico: { stages: unknown };
+}): StageDefinition[] {
+  if (atendimento.customStages != null) {
+    return atendimento.customStages as StageDefinition[];
+  }
+  return atendimento.servico.stages as StageDefinition[];
+}
+
 export const DEFAULT_STAGES: Record<string, StageDefinition[]> = {
   BANHO_TOSA: [
     { id: 'checkin', label: 'Check-in', whatsappMsg: 'foi recebido na clínica para Banho & Tosa', color: '#6B7280', mediaAllowed: false, autoNotify: true },

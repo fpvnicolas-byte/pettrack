@@ -1,5 +1,5 @@
 import { WhatsAppProvider } from '@/lib/whatsapp/provider';
-import { buildTemplateVariables, STAGE_MESSAGES } from '@/lib/whatsapp/templates';
+import { buildTemplateVariables } from '@/lib/whatsapp/templates';
 import { prisma } from '@/lib/prisma';
 import type { WhatsAppJobData } from '@/types';
 
@@ -28,9 +28,10 @@ export async function sendWhatsAppNow(job: WhatsAppJobData): Promise<SendResult>
     return { success: false, error: 'Atendimento não encontrado' };
   }
 
-  const stageMessage = STAGE_MESSAGES[atendimento.servico.tipo]?.[job.stageId];
+  // A mensagem já vem resolvida pelo caller (suporta estágios padrão e customizados)
+  const stageMessage = job.whatsappMsg;
   if (!stageMessage) {
-    return { success: false, error: `Stage message não configurada: ${job.stageId}` };
+    return { success: false, error: `Stage message ausente para: ${job.stageId}` };
   }
 
   const variables = buildTemplateVariables({ petNome: atendimento.pet.nome, stageMessage });

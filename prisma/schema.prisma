@@ -155,6 +155,7 @@ model Atendimento {
   clinicaId      String            @map("clinica_id")
   status         StatusAtendimento @default(AGUARDANDO)
   currentStage   Int               @default(0) @map("current_stage")
+  customStages   Json?             @map("custom_stages")
   observacoes    String?
   checkinAt      DateTime?         @map("checkin_at")
   conclusaoAt    DateTime?         @map("conclusao_at")

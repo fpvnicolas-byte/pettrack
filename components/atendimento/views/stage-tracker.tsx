@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Check, ArrowRight, Loader2, ImagePlus, X } from "lucide-react";
+import { Check, ArrowRight, Loader2, ImagePlus, X, Plus } from "lucide-react";
 import type { StageDefinition } from "@/types";
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,9 @@ interface StageTrackerProps {
     onAdvance: () => void;
     isLoading: boolean;
     isCompleted: boolean;
+    canAddStage?: boolean;
+    onAddStageClick?: () => void;
+    uploadMidiaPermitido?: boolean;
 }
 
 export function StageTracker({
@@ -27,7 +30,10 @@ export function StageTracker({
     onClearMedia,
     onAdvance,
     isLoading,
-    isCompleted
+    isCompleted,
+    canAddStage = false,
+    onAddStageClick,
+    uploadMidiaPermitido = false,
 }: StageTrackerProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const nextStage = stages[currentStageIdx + 1];
@@ -52,49 +58,71 @@ export function StageTracker({
                         const isPending = idx > currentStageIdx;
 
                         return (
-                            <div
-                                key={stage.id}
-                                className={cn(
-                                    "flex items-center gap-4 group transition-all duration-300",
-                                    isPending ? "opacity-40" : "opacity-100"
-                                )}
-                            >
-                                {/* Círculo do status */}
+                            <div key={stage.id}>
                                 <div
                                     className={cn(
-                                        "w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border-[3px] shadow-sm transition-all duration-300",
-                                        isDone ? `bg-vettrack-success border-vettrack-success text-white` :
-                                            isActive ? `bg-white text-vettrack-dark shadow-md z-10 scale-110` :
-                                                `bg-gray-50 border-gray-200 text-gray-400`
+                                        "flex items-center gap-4 group transition-all duration-300",
+                                        isPending ? "opacity-40" : "opacity-100"
                                     )}
-                                    style={isActive ? { borderColor: stage.color } : undefined}
                                 >
-                                    {isDone ? <Check className="w-5 h-5" /> : (idx + 1)}
+                                    {/* Círculo do status */}
+                                    <div
+                                        className={cn(
+                                            "w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border-[3px] shadow-sm transition-all duration-300",
+                                            isDone ? `bg-vettrack-success border-vettrack-success text-white` :
+                                                isActive ? `bg-white text-vettrack-dark shadow-md z-10 scale-110` :
+                                                    `bg-gray-50 border-gray-200 text-gray-400`
+                                        )}
+                                        style={isActive ? { borderColor: stage.color } : undefined}
+                                    >
+                                        {isDone ? <Check className="w-5 h-5" /> : (idx + 1)}
+                                    </div>
+
+                                    {/* Detalhes do status */}
+                                    <div
+                                        className={cn(
+                                            "flex-1 p-4 rounded-2xl border transition-all duration-300",
+                                            isActive ? "bg-white shadow-md" : "bg-transparent border-transparent",
+                                            isDone ? "border-gray-100 bg-gray-50/50" : ""
+                                        )}
+                                        style={isActive ? { borderColor: `${stage.color}40`, boxShadow: `0 4px 20px -5px ${stage.color}20` } : undefined}
+                                    >
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <span className="font-bold text-base" style={{ color: isActive ? stage.color : isDone ? '#10B981' : '#9ca3af' }}>
+                                                {stage.label}
+                                            </span>
+                                            {stage.isCustom && (
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-600 border border-amber-200">
+                                                    Extra
+                                                </span>
+                                            )}
+                                        </div>
+                                        {stage.mediaAllowed && (
+                                            <div className="text-[11px] font-medium text-gray-400 flex items-center gap-1.5 mt-1">
+                                                <ImagePlus className="w-3.5 h-3.5" /> Estágio permite fotos
+                                            </div>
+                                        )}
+                                        {isActive && (
+                                            <div className="mt-2 inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-gray-100 text-xs font-semibold text-gray-600">
+                                                <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: stage.color }} />
+                                                Em Andamento
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
-                                {/* Detalhes do status */}
-                                <div className={cn(
-                                    "flex-1 p-4 rounded-2xl border transition-all duration-300",
-                                    isActive ? "bg-white shadow-md" : "bg-transparent border-transparent",
-                                    isDone ? "border-gray-100 bg-gray-50/50" : ""
-                                )}
-                                    style={isActive ? { borderColor: `${stage.color}40`, boxShadow: `0 4px 20px -5px ${stage.color}20` } : undefined}
-                                >
-                                    <div className="font-bold text-base" style={{ color: isActive ? stage.color : isDone ? '#10B981' : '#9ca3af' }}>
-                                        {stage.label}
+                                {/* Botão de inserção de estágio extra — aparece após o estágio ativo */}
+                                {isActive && canAddStage && !isCompleted && (
+                                    <div className="flex items-center gap-3 pl-16 py-2">
+                                        <button
+                                            onClick={onAddStageClick}
+                                            className="flex items-center gap-1.5 text-xs font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 border border-amber-200 hover:border-amber-300 px-3 py-2 rounded-xl transition-all active:scale-[0.97]"
+                                        >
+                                            <Plus className="w-3.5 h-3.5" />
+                                            Inserir estágio extra
+                                        </button>
                                     </div>
-                                    {stage.mediaAllowed && (
-                                        <div className="text-[11px] font-medium text-gray-400 flex items-center gap-1.5 mt-1">
-                                            <ImagePlus className="w-3.5 h-3.5" /> Estágio permite fotos
-                                        </div>
-                                    )}
-                                    {isActive && (
-                                        <div className="mt-2 inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-gray-100 text-xs font-semibold text-gray-600">
-                                            <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: stage.color }} />
-                                            Em Andamento
-                                        </div>
-                                    )}
-                                </div>
+                                )}
                             </div>
                         )
                     })}
@@ -105,6 +133,7 @@ export function StageTracker({
             {!isCompleted && (
                 <div className="mt-8 bg-white border border-gray-100 shadow-sm rounded-3xl overflow-hidden p-1">
                     {nextStageAllowsMedia && (
+                        uploadMidiaPermitido ? (
                         <div className="p-4 bg-gray-50/50 rounded-[1.5rem] mb-1">
                             <div className="flex items-center justify-between mb-3 px-1">
                                 <span className="text-sm font-bold text-gray-600 block flex items-center gap-2">
@@ -151,6 +180,20 @@ export function StageTracker({
                                 className="hidden"
                             />
                         </div>
+                        ) : (
+                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-[1.5rem] mb-1 flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                                <ImagePlus className="w-4 h-4 text-amber-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-bold text-amber-800">Fotos e vídeos não disponíveis no Trial</p>
+                                <p className="text-[11px] text-amber-600 mt-0.5">Faça upgrade para o plano Profissional para enviar mídia aos tutores.</p>
+                            </div>
+                            <a href="/planos" className="text-[11px] font-bold text-white bg-amber-500 hover:bg-amber-600 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap flex-shrink-0">
+                                Ver planos
+                            </a>
+                        </div>
+                        )
                     )}
 
                     <Button

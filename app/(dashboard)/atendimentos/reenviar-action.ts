@@ -3,8 +3,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 import { sendWhatsAppNow } from '@/lib/queue/whatsapp.worker';
+import { getEffectiveStages } from '@/lib/stages/stage.config';
 import { revalidatePath } from 'next/cache';
-import type { StageDefinition } from '@/types';
 
 export async function reenviarWhatsApp(atendimentoId: string) {
   const supabase = await createClient();
@@ -17,12 +17,13 @@ export async function reenviarWhatsApp(atendimentoId: string) {
   });
   if (!atendimento) throw new Error('Atendimento não encontrado');
 
-  const stages = atendimento.servico.stages as unknown as StageDefinition[];
+  const stages = getEffectiveStages(atendimento);
   const stage = stages[atendimento.currentStage];
 
   const result = await sendWhatsAppNow({
     atendimentoId,
     stageId: stage.id,
+    whatsappMsg: stage.whatsappMsg,
   });
 
   revalidatePath('/atendimentos');

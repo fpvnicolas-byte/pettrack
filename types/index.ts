@@ -7,6 +7,14 @@ export interface StageDefinition {
   color: string;
   mediaAllowed: boolean;
   autoNotify: boolean;
+  isCustom?: boolean;
+}
+
+export interface CustomStageInput {
+  label: string;
+  whatsappMsg: string;
+  mediaAllowed: boolean;
+  autoNotify: boolean;
 }
 
 export interface AtendimentoWithRelations {
@@ -17,6 +25,7 @@ export interface AtendimentoWithRelations {
   clinicaId: string;
   status: 'AGUARDANDO' | 'EM_ANDAMENTO' | 'CONCLUIDO' | 'CANCELADO';
   currentStage: number;
+  customStages: StageDefinition[] | null;
   observacoes: string | null;
   checkinAt: string | null;
   conclusaoAt: string | null;
@@ -61,6 +70,7 @@ export interface UsuarioBasic {
 export interface WhatsAppJobData {
   atendimentoId: string;
   stageId: string;
+  whatsappMsg: string;
   mediaUrl?: string;
   mediaType?: 'image' | 'video';
 }

@@ -25,6 +25,9 @@ interface DetalhesViewProps {
     isLoadingReenvio: boolean;
     onDeleteRequest: () => void;
     onVoltarParaFila: () => void;
+    canAddStage?: boolean;
+    onAddStageClick?: () => void;
+    uploadMidiaPermitido?: boolean;
 }
 
 export function DetalhesView({
@@ -42,7 +45,10 @@ export function DetalhesView({
     onReenviar,
     isLoadingReenvio,
     onDeleteRequest,
-    onVoltarParaFila
+    onVoltarParaFila,
+    canAddStage = false,
+    onAddStageClick,
+    uploadMidiaPermitido = false,
 }: DetalhesViewProps) {
 
     if (!atendimento) {
@@ -122,6 +128,9 @@ export function DetalhesView({
                         onAdvance={onAdvance}
                         isLoading={isLoading}
                         isCompleted={isCompleted}
+                        canAddStage={canAddStage}
+                        onAddStageClick={onAddStageClick}
+                        uploadMidiaPermitido={uploadMidiaPermitido}
                     />
 
                     {/* Alerta de Falha no WhatsApp */}

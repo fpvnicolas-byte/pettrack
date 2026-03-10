@@ -1,7 +1,8 @@
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Plus, CheckCircle2 } from "lucide-react";
-import type { AtendimentoWithRelations, StageDefinition } from "@/types";
+import type { AtendimentoWithRelations } from "@/types";
+import { getEffectiveStages } from "@/lib/stages/stage.config";
 
 const ESPECIES_EMOJI: Record<string, string> = {
     CANINO: '🐶', FELINO: '🐱', AVE: '🐦', ROEDOR: '🐹', REPTIL: '🦎', OUTRO: '🐾',
@@ -98,7 +99,7 @@ export function FilaList({
                             </div>
                             <div className="space-y-2">
                                 {items.map((atendimento: AtendimentoWithRelations) => {
-                                    const stgs = atendimento.servico.stages as unknown as StageDefinition[];
+                                    const stgs = getEffectiveStages(atendimento);
                                     const stg = stgs[atendimento.currentStage];
                                     const isSelected = selectedId === atendimento.id;
 

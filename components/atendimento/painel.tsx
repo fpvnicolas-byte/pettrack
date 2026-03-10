@@ -3,9 +3,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { advanceStage, deleteAtendimento } from '@/app/(dashboard)/atendimentos/actions';
+import { advanceStage, deleteAtendimento, insertCustomStage } from '@/app/(dashboard)/atendimentos/actions';
 import { reenviarWhatsApp } from '@/app/(dashboard)/atendimentos/reenviar-action';
-import type { AtendimentoWithRelations, StageDefinition } from '@/types';
+import type { AtendimentoWithRelations, StageDefinition, CustomStageInput } from '@/types';
+import { getEffectiveStages, canInsertCustomStage } from '@/lib/stages/stage.config';
 
 // Novas Views Refatoradas
 import { FilaList } from './views/fila-list';
@@ -14,6 +15,7 @@ import { DetalhesView } from './views/detalhes-view';
 // Modais Refatorados
 import { NovoAtendimentoModal } from './modals/novo-atendimento-modal';
 import { ConfirmDeleteModal } from './modals/confirm-delete-modal';
+import { InsertStageModal } from './modals/insert-stage-modal';
 
 interface PetForSelect {
   id: string;
@@ -28,9 +30,10 @@ interface PainelProps {
   finalizados: AtendimentoWithRelations[];
   servicos: any[];
   pets: PetForSelect[];
+  uploadMidiaPermitido?: boolean;
 }
 
-export function AtendimentosPainel({ initialData, finalizados: initialFinalizados, servicos, pets }: PainelProps) {
+export function AtendimentosPainel({ initialData, finalizados: initialFinalizados, servicos, pets, uploadMidiaPermitido = false }: PainelProps) {
   const router = useRouter();
 
   // -- Estado Global do App --
@@ -43,6 +46,7 @@ export function AtendimentosPainel({ initialData, finalizados: initialFinalizado
   // -- Modais --
   const [showNovoModal, setShowNovoModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [showInsertStageModal, setShowInsertStageModal] = useState(false);
 
   // -- Estado Transacional (Formulários e Uploads) --
   const [loading, setLoading] = useState(false);
@@ -84,7 +88,12 @@ export function AtendimentosPainel({ initialData, finalizados: initialFinalizado
               setAtendimentos((prev) =>
                 prev.map((a) =>
                   a.id === updated.id
-                    ? { ...a, currentStage: updated.current_stage, status: updated.status }
+                    ? {
+                        ...a,
+                        currentStage: updated.current_stage,
+                        status: updated.status,
+                        customStages: updated.custom_stages ?? null,
+                      }
                     : a
                 )
               );
@@ -196,6 +205,23 @@ export function AtendimentosPainel({ initialData, finalizados: initialFinalizado
     }
   }
 
+  async function handleInsertStage(input: CustomStageInput) {
+    if (!selected) return;
+    try {
+      const result = await insertCustomStage(selected.id, input);
+      setAtendimentos((prev) =>
+        prev.map((a) =>
+          a.id === selected.id ? { ...a, customStages: result.effectiveStages } : a
+        )
+      );
+      setShowInsertStageModal(false);
+      showToast('Estágio extra inserido com sucesso');
+      router.refresh();
+    } catch (err: any) {
+      showToast(`❌ ${err.message}`);
+    }
+  }
+
   async function handleDelete(id: string) {
     setConfirmDelete(null);
     setLoadingDelete(true);
@@ -215,9 +241,12 @@ export function AtendimentosPainel({ initialData, finalizados: initialFinalizado
 
   // -- Computed State --
   const selected = atendimentos.find((a) => a.id === selectedId) || finalizados.find((a) => a.id === selectedId);
-  const stages: StageDefinition[] = selected ? (selected.servico.stages as unknown as StageDefinition[]) : [];
+  const stages: StageDefinition[] = selected ? getEffectiveStages(selected) : [];
   const currentStageIdx = selected ? selected.currentStage : 0;
   const nextStageAllowsMedia = selected ? (stages[currentStageIdx + 1]?.mediaAllowed ?? false) : false;
+  const canAddStage = selected
+    ? canInsertCustomStage(selected.servico.tipo) && selected.status !== 'CONCLUIDO'
+    : false;
 
   const grouped = servicos.reduce((acc: any[], svc) => {
     const items = atendimentos.filter((a) => a.servicoId === svc.id);
@@ -277,6 +306,9 @@ export function AtendimentosPainel({ initialData, finalizados: initialFinalizado
             isLoadingReenvio={loadingReenvio}
             onDeleteRequest={() => setConfirmDelete(selected?.id || null)}
             onVoltarParaFila={voltarParaFila}
+            canAddStage={canAddStage}
+            onAddStageClick={() => setShowInsertStageModal(true)}
+            uploadMidiaPermitido={uploadMidiaPermitido}
           />
         </div>
       </div>
@@ -317,6 +349,7 @@ export function AtendimentosPainel({ initialData, finalizados: initialFinalizado
                 isLoadingReenvio={loadingReenvio}
                 onDeleteRequest={() => setConfirmDelete(selected?.id || null)}
                 onVoltarParaFila={voltarParaFila}
+                uploadMidiaPermitido={uploadMidiaPermitido}
               />
             </div>
           </div>
@@ -338,6 +371,15 @@ export function AtendimentosPainel({ initialData, finalizados: initialFinalizado
           onClose={() => setConfirmDelete(null)}
           onConfirm={() => handleDelete(confirmDelete)}
           isLoading={loadingDelete}
+        />
+      )}
+
+      {showInsertStageModal && selected && (
+        <InsertStageModal
+          onClose={() => setShowInsertStageModal(false)}
+          onSubmit={handleInsertStage}
+          currentStageName={stages[currentStageIdx]?.label ?? ''}
+          nextStageName={stages[currentStageIdx + 1]?.label ?? 'Final'}
         />
       )}
     </div>
