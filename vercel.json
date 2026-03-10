@@ -1,8 +1,1 @@
-{
-  "crons": [
-    {
-      "path": "/api/queue/process?token=${WHATSAPP_VERIFY_TOKEN}",
-      "schedule": "* * * * *"
-    }
-  ]
-}
+{}

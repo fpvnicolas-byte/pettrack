@@ -3,8 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 import { validateStageTransition, isLastStage } from '@/lib/stages/stage.validator';
-import { enqueueWhatsApp } from '@/lib/queue/whatsapp.queue';
-import { processWhatsAppQueue } from '@/lib/queue/whatsapp.worker';
+import { sendWhatsAppNow } from '@/lib/queue/whatsapp.worker';
 import { uploadAtendimentoMedia } from '@/lib/midia/upload';
 import type { StageDefinition } from '@/types';
 import { revalidatePath } from 'next/cache';
@@ -79,18 +78,12 @@ export async function advanceStage(atendimentoId: string, formData?: FormData) {
     });
   });
 
-  // 5. Notificar via WhatsApp (assíncrono)
+  // 5. Enviar WhatsApp diretamente (sem fila)
   const stage = stages[nextStage];
   if (stage.autoNotify) {
-    await enqueueWhatsApp({
-      atendimentoId,
-      stageId: stage.id,
-      mediaUrl,
-      mediaType,
+    sendWhatsAppNow({ atendimentoId, stageId: stage.id, mediaUrl, mediaType }).catch((err) => {
+      console.error('[advanceStage] Falha ao enviar WhatsApp:', err);
     });
-
-    // Processar fila diretamente (evita self-fetch que trava em Server Actions)
-    processWhatsAppQueue().catch(() => {});
   }
 
   revalidatePath('/atendimentos');
