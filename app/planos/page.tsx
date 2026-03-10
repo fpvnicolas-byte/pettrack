@@ -41,31 +41,34 @@ export default function PlanosPage() {
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-64 bg-vettrack-accent/10 blur-[100px] rounded-full pointer-events-none"></div>
         <div className="max-w-3xl mx-auto relative z-10">
           <span className="inline-block bg-white/10 text-white/80 text-[10px] font-bold px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase border border-white/10">
-            Transparência total
+            Preço único, sem surpresas
           </span>
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">Planos simples para clínicas incríveis</h1>
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
+            Simples de entender.<br />Difícil de largar.
+          </h1>
           <p className="text-gray-300 text-xl font-medium">
-            Comece grátis por 14 dias sem cartão. Cancele com 1 clique se não amar a ferramenta.
+            7 dias grátis para sentir a diferença. Sem cartão de crédito.
           </p>
         </div>
       </section>
 
       {/* CARDS */}
       <section className="py-24 px-5 -mt-20 relative z-20">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid sm:grid-cols-3 gap-6 items-end">
             {PLANOS.map((plano) => (
               <div
                 key={plano.id}
-                className={`relative bg-white rounded-[2.5rem] shadow-sm border flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${plano.destaque
-                  ? 'border-vettrack-accent ring-[4px] ring-vettrack-accent/20 shadow-xl shadow-vettrack-accent/10 transform scale-105 z-10'
-                  : 'border-gray-100'
-                  }`}
+                className={`relative bg-white rounded-[2.5rem] shadow-sm border flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${
+                  plano.destaque
+                    ? 'border-vettrack-accent ring-[4px] ring-vettrack-accent/20 shadow-xl shadow-vettrack-accent/10 transform scale-105 z-10'
+                    : 'border-gray-100'
+                }`}
               >
                 {plano.destaque && (
                   <div className="absolute -top-4 left-0 right-0 flex justify-center">
                     <span className="bg-vettrack-accent text-white text-[10px] uppercase tracking-widest font-bold px-5 py-2 rounded-full shadow-lg shadow-vettrack-accent/30 flex items-center gap-1.5">
-                      ⭐ Escolha de 80% das clínicas
+                      ⭐ Mais escolhido
                     </span>
                   </div>
                 )}
@@ -73,10 +76,19 @@ export default function PlanosPage() {
                 <div className="p-6 border-b border-gray-100">
                   <div className="font-bold text-[#1a1a2e] text-xl mb-1">{plano.nome}</div>
                   <div className="text-gray-400 text-xs mb-4">{plano.descricao}</div>
+
                   {plano.preco === 0 ? (
                     <div>
                       <span className="text-3xl font-bold text-[#1a1a2e]">Grátis</span>
                       <span className="text-gray-400 text-sm ml-2">{plano.periodo}</span>
+                    </div>
+                  ) : plano.preco === -1 ? (
+                    <div>
+                      <span className="text-3xl font-bold text-[#1a1a2e]">Sob consulta</span>
+                      <div className="mt-1 inline-flex items-center gap-1.5 bg-green-50 text-green-700 text-[11px] font-semibold px-2.5 py-1 rounded-full">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>
+                        SLA 99% garantido
+                      </div>
                     </div>
                   ) : (
                     <div>
@@ -105,10 +117,15 @@ export default function PlanosPage() {
                   {plano.ctaHref ? (
                     <Link
                       href={plano.ctaHref}
-                      className={`w-full text-center py-3 px-4 rounded-xl font-semibold text-sm transition-all ${plano.destaque
-                        ? 'bg-vettrack-accent hover:opacity-90 text-white'
-                        : 'bg-[#1a1a2e] hover:bg-[#2a2a4e] text-white'
-                        }`}
+                      target={plano.id === 'ENTERPRISE' ? '_blank' : undefined}
+                      rel={plano.id === 'ENTERPRISE' ? 'noopener noreferrer' : undefined}
+                      className={`w-full text-center py-3 px-4 rounded-xl font-semibold text-sm transition-all ${
+                        plano.destaque
+                          ? 'bg-vettrack-accent hover:opacity-90 text-white'
+                          : plano.id === 'ENTERPRISE'
+                          ? 'bg-[#1a1a2e] hover:bg-[#2a2a4e] text-white'
+                          : 'bg-gray-100 hover:bg-gray-200 text-[#1a1a2e]'
+                      }`}
                     >
                       {plano.cta}
                     </Link>
@@ -134,20 +151,24 @@ export default function PlanosPage() {
           <div className="space-y-6">
             {[
               {
+                q: 'Preciso de cartão de crédito para o trial?',
+                a: 'Não. Os 7 dias gratuitos não exigem nenhuma forma de pagamento. Só pedimos cartão quando você decide assinar.',
+              },
+              {
+                q: 'O que acontece quando o trial de 7 dias termina?',
+                a: 'Sua conta fica em modo restrito — você ainda acessa os dados, mas não consegue registrar novos atendimentos. Para continuar, basta escolher um plano.',
+              },
+              {
                 q: 'Preciso de conta WhatsApp Business para usar o VetTrack?',
                 a: 'Sim, você precisa de uma conta na Meta Cloud API (WhatsApp Business API). Ajudamos você a configurar no onboarding. O processo leva cerca de 2 dias úteis.',
               },
               {
-                q: 'O que acontece quando o trial de 14 dias termina?',
-                a: 'Sua conta fica em modo restrito — você ainda acessa os dados, mas não consegue registrar novos atendimentos. Para continuar, basta escolher um plano.',
+                q: 'Posso cancelar a qualquer momento?',
+                a: 'Sim, sem multa e sem burocracia. Se cancelar, seus dados ficam armazenados por 90 dias para exportação.',
               },
               {
-                q: 'Posso mudar de plano depois?',
-                a: 'Sim, a qualquer momento. Se você fizer upgrade, o valor é proporcional ao período restante do mês. No downgrade, aplica a partir da próxima renovação.',
-              },
-              {
-                q: 'Os atendimentos e histórico ficam salvos ao cancelar?',
-                a: 'Sim. Seus dados ficam armazenados por 90 dias após o cancelamento. Você pode exportar a qualquer momento.',
+                q: 'O que é o plano Enterprise?',
+                a: 'É voltado para redes veterinárias, hospitais e operações com alto volume ou múltiplas unidades. Inclui SLA 99% em contrato, CSM dedicado e integrações customizadas. Entre em contato para uma proposta.',
               },
               {
                 q: 'Qual forma de pagamento é aceita?',
@@ -166,8 +187,8 @@ export default function PlanosPage() {
       {/* CTA */}
       <section className="bg-[#1a1a2e] py-20 px-5 text-center">
         <div className="max-w-xl mx-auto">
-          <h2 className="text-3xl font-bold text-white mb-4">Pronto para começar?</h2>
-          <p className="text-gray-400 mb-8">14 dias grátis, sem compromisso.</p>
+          <h2 className="text-3xl font-bold text-white mb-4">Pronto para transformar seu atendimento?</h2>
+          <p className="text-gray-400 mb-8">7 dias grátis. Sem cartão. Cancele quando quiser.</p>
           <Link
             href="/register"
             className="inline-block bg-vettrack-accent hover:opacity-90 text-white px-10 py-4 rounded-xl font-semibold text-lg transition-opacity"

@@ -6,10 +6,8 @@ import type Stripe from 'stripe';
 // Necessário para ler o raw body do webhook no App Router
 export const runtime = 'nodejs';
 
-const PLANO_MAP: Record<string, 'BASICO' | 'PROFISSIONAL' | 'PREMIUM'> = {
-  BASICO: 'BASICO',
+const PLANO_MAP: Record<string, 'PROFISSIONAL'> = {
   PROFISSIONAL: 'PROFISSIONAL',
-  PREMIUM: 'PREMIUM',
 };
 
 export async function POST(req: NextRequest) {
