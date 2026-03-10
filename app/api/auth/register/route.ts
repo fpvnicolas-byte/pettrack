@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       data: servicosPadrao.map((s) => ({
         nome: s.nome,
         tipo: s.tipo,
-        stages: DEFAULT_STAGES[s.tipo] as unknown as import('@prisma/client').Prisma.InputJsonValue,
+        stages: DEFAULT_STAGES[s.tipo] as never,
         clinicaId: clinica.id,
       })),
     });

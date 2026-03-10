@@ -1,7 +1,6 @@
 import { WhatsAppProvider } from '@/lib/whatsapp/provider';
 import { buildTemplateVariables, STAGE_MESSAGES } from '@/lib/whatsapp/templates';
 import { prisma } from '@/lib/prisma';
-import type { Prisma } from '@prisma/client';
 import type { WhatsAppJobData } from '@/types';
 
 const MAX_ATTEMPTS = 3;
@@ -62,7 +61,7 @@ export async function sendWhatsAppNow(job: WhatsAppJobData): Promise<SendResult>
           tipo: job.mediaUrl ? 'STATUS_MEDIA' : 'STATUS_UPDATE',
           canal: 'WHATSAPP',
           templateName,
-          variaveis: variables as unknown as Prisma.InputJsonValue,
+          variaveis: variables as never,
           midiaUrl: job.mediaUrl,
           waMessageId: result.messageId,
           status: 'ENVIADO',
@@ -88,7 +87,7 @@ export async function sendWhatsAppNow(job: WhatsAppJobData): Promise<SendResult>
       tipo: job.mediaUrl ? 'STATUS_MEDIA' : 'STATUS_UPDATE',
       canal: 'WHATSAPP',
       templateName,
-      variaveis: variables as unknown as Prisma.InputJsonValue,
+      variaveis: variables as never,
       midiaUrl: job.mediaUrl,
       status: 'ERRO',
       erroMsg: lastError,
