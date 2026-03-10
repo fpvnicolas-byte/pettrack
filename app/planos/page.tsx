@@ -154,6 +154,7 @@ export default async function PlanosPage() {
                       stripePriceId={plano.stripePriceId}
                       label={plano.cta}
                       destaque={plano.destaque}
+                      logado={!!planoAtual}
                     />
                   )}
                 </div>

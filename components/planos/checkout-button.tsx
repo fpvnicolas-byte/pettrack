@@ -8,16 +8,22 @@ interface CheckoutButtonProps {
   stripePriceId: string | null;
   label: string;
   destaque?: boolean;
+  logado?: boolean;
 }
 
-export function CheckoutButton({ planoId, stripePriceId, label, destaque }: CheckoutButtonProps) {
+export function CheckoutButton({ planoId, stripePriceId, label, destaque, logado }: CheckoutButtonProps) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   async function handleClick() {
     if (!stripePriceId) {
-      // Price ID não configurado — redireciona para registro
       router.push('/register');
+      return;
+    }
+
+    // Não logado — vai para registro com intenção de compra
+    if (!logado) {
+      router.push(`/register?plano=${planoId}`);
       return;
     }
 
@@ -48,10 +54,11 @@ export function CheckoutButton({ planoId, stripePriceId, label, destaque }: Chec
     <button
       onClick={handleClick}
       disabled={loading}
-      className={`w-full py-3 px-4 rounded-xl font-semibold text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${destaque
+      className={`w-full py-3 px-4 rounded-xl font-semibold text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
+        destaque
           ? 'bg-vettrack-accent hover:opacity-90 text-white'
           : 'bg-[#1a1a2e] hover:bg-[#2a2a4e] text-white'
-        }`}
+      }`}
     >
       {loading ? 'Aguarde...' : label}
     </button>
