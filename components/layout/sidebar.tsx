@@ -14,6 +14,7 @@ interface SidebarProps {
     role: string;
     clinicaNome: string;
   };
+  diasRestantesTrial: number | null;
 }
 
 const navItems = [
@@ -23,7 +24,7 @@ const navItems = [
   { href: '/configuracoes', label: 'Configurações', icon: Settings },
 ];
 
-export function Sidebar({ usuario }: SidebarProps) {
+export function Sidebar({ usuario, diasRestantesTrial }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -75,6 +76,31 @@ export function Sidebar({ usuario }: SidebarProps) {
           );
         })}
       </nav>
+
+      {/* Badge trial */}
+      {diasRestantesTrial !== null && (
+        <div className="px-4 mb-3">
+          <Link
+            href="/planos"
+            className={cn(
+              'flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all border',
+              diasRestantesTrial <= 2
+                ? 'bg-red-500/15 border-red-400/30 text-red-300 hover:bg-red-500/25'
+                : diasRestantesTrial <= 5
+                ? 'bg-amber-500/15 border-amber-400/30 text-amber-300 hover:bg-amber-500/25'
+                : 'bg-white/8 border-white/15 text-white/70 hover:bg-white/12'
+            )}
+          >
+            <span className="text-base leading-none">
+              {diasRestantesTrial <= 2 ? '🔴' : diasRestantesTrial <= 5 ? '🟡' : '🟢'}
+            </span>
+            <div className="flex-1">
+              <div>Trial · {diasRestantesTrial === 0 ? 'expira hoje' : `${diasRestantesTrial}d restantes`}</div>
+              <div className="font-normal opacity-70 mt-0.5">Assinar plano →</div>
+            </div>
+          </Link>
+        </div>
+      )}
 
       {/* User info */}
       <div className="p-4 mx-4 mb-4 rounded-xl bg-white/5 border border-white/10">

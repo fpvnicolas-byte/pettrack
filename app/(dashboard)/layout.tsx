@@ -15,10 +15,14 @@ export default async function DashboardLayout({
 
   const usuario = await prisma.usuario.findUnique({
     where: { id: user.id },
-    include: { clinica: true },
+    include: { clinica: { select: { nome: true, plano: true, createdAt: true } } },
   });
 
   if (!usuario) redirect('/login');
+
+  const diasRestantesTrial = usuario.clinica.plano === 'TRIAL'
+    ? Math.max(0, 7 - Math.floor((Date.now() - new Date(usuario.clinica.createdAt).getTime()) / 86_400_000))
+    : null;
 
   return (
     <div className="flex h-screen bg-[rgb(var(--background))]">
@@ -29,6 +33,7 @@ export default async function DashboardLayout({
           role: usuario.role,
           clinicaNome: usuario.clinica.nome,
         }}
+        diasRestantesTrial={diasRestantesTrial}
       />
       {/* No mobile, o sidebar é fixed (top bar de 56px) — main precisa de padding-top */}
       <main className="flex-1 overflow-y-auto md:overflow-y-auto h-full">
