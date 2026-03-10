@@ -360,6 +360,8 @@ export default async function LandingPage() {
           <Link href="/planos" className="hover:text-gray-400 transition-colors">Planos</Link>
           <Link href="/login" className="hover:text-gray-400 transition-colors">Entrar</Link>
           <Link href="/register" className="hover:text-gray-400 transition-colors">Criar conta</Link>
+          <Link href="/privacidade" className="hover:text-gray-400 transition-colors">Privacidade</Link>
+          <Link href="/termos" className="hover:text-gray-400 transition-colors">Termos de Uso</Link>
         </div>
         <p className="text-xs text-gray-700">© {new Date().getFullYear()} VetTrack. Todos os direitos reservados.</p>
       </footer>
