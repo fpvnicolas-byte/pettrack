@@ -78,16 +78,17 @@ export async function advanceStage(atendimentoId: string, formData?: FormData) {
     });
   });
 
-  // 5. Enviar WhatsApp diretamente (sem fila)
+  // 5. Enviar WhatsApp com retry automático (3 tentativas)
   const stage = stages[nextStage];
+  let whatsappStatus: 'sent' | 'error' | 'skipped' = 'skipped';
+
   if (stage.autoNotify) {
-    sendWhatsAppNow({ atendimentoId, stageId: stage.id, mediaUrl, mediaType }).catch((err) => {
-      console.error('[advanceStage] Falha ao enviar WhatsApp:', err);
-    });
+    const result = await sendWhatsAppNow({ atendimentoId, stageId: stage.id, mediaUrl, mediaType });
+    whatsappStatus = result.success ? 'sent' : 'error';
   }
 
   revalidatePath('/atendimentos');
-  return { success: true, newStage: nextStage };
+  return { success: true, newStage: nextStage, whatsappStatus };
 }
 
 export async function deleteAtendimento(atendimentoId: string) {

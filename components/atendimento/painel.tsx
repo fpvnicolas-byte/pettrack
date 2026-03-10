@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useTransition, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { advanceStage, createAtendimento, deleteAtendimento } from '@/app/(dashboard)/atendimentos/actions';
+import { reenviarWhatsApp } from '@/app/(dashboard)/atendimentos/reenviar-action';
 import type { AtendimentoWithRelations, StageDefinition } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -45,6 +46,8 @@ export function AtendimentosPainel({ initialData, finalizados: initialFinalizado
   // Mobile: controla se está mostrando o detalhe ou a fila
   const [mobileView, setMobileView] = useState<'fila' | 'detalhe'>('fila');
   const [loadingDelete, setLoadingDelete] = useState(false);
+  const [whatsappError, setWhatsappError] = useState<string | null>(null); // id do atendimento com erro
+  const [loadingReenvio, setLoadingReenvio] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const supabase = useMemo(() => createClient(), []);
@@ -145,6 +148,7 @@ export function AtendimentosPainel({ initialData, finalizados: initialFinalizado
   async function handleAdvance() {
     if (!selected) return;
     setLoading(true);
+    setWhatsappError(null);
 
     try {
       const formData = new FormData();
@@ -155,21 +159,31 @@ export function AtendimentosPainel({ initialData, finalizados: initialFinalizado
       const newStage = result.newStage;
       const isLast = newStage >= stages.length - 1;
 
-      // Atualiza estado apenas após confirmação do servidor
       if (isLast) {
         const concluido = { ...selected, currentStage: newStage, status: 'CONCLUIDO' as const };
         setAtendimentos((prev) => prev.filter((a) => a.id !== selected.id));
         setFinalizados((prev) => [concluido, ...prev]);
         setSelectedId(null);
         setMobileView('fila');
-        showToast(`✅ ${selected.pet.nome} concluído! Tutor notificado 📱`);
+        if (result.whatsappStatus === 'error') {
+          showToast(`✅ ${selected.pet.nome} concluído — mas WhatsApp falhou. Verifique as configurações.`);
+        } else {
+          showToast(`✅ ${selected.pet.nome} concluído! Tutor notificado 📱`);
+        }
       } else {
         setAtendimentos((prev) =>
           prev.map((a) =>
             a.id === selected.id ? { ...a, currentStage: newStage, status: 'EM_ANDAMENTO' } : a
           )
         );
-        showToast(`WhatsApp enviado para ${selected.pet.tutor.nome.split(' ')[0]}! 📱`);
+        if (result.whatsappStatus === 'error') {
+          setWhatsappError(selected.id);
+          showToast(`⚠️ Estágio avançado, mas o WhatsApp não foi enviado após 3 tentativas.`);
+        } else if (result.whatsappStatus === 'sent') {
+          showToast(`WhatsApp enviado para ${selected.pet.tutor.nome.split(' ')[0]}! 📱`);
+        } else {
+          showToast(`Estágio avançado!`);
+        }
       }
 
       router.refresh();
@@ -177,6 +191,24 @@ export function AtendimentosPainel({ initialData, finalizados: initialFinalizado
       showToast(`❌ ${err.message}`);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleReenviar() {
+    if (!selected) return;
+    setLoadingReenvio(true);
+    try {
+      const result = await reenviarWhatsApp(selected.id);
+      if (result.success) {
+        setWhatsappError(null);
+        showToast(`WhatsApp reenviado com sucesso! 📱`);
+      } else {
+        showToast(`⚠️ Reenvio falhou: ${result.error}`);
+      }
+    } catch (err: any) {
+      showToast(`❌ ${err.message}`);
+    } finally {
+      setLoadingReenvio(false);
     }
   }
 
@@ -311,11 +343,16 @@ export function AtendimentosPainel({ initialData, finalizados: initialFinalizado
                         {atendimento.pet.raca} • {atendimento.pet.tutor.nome}
                       </div>
                     </div>
-                    <div
-                      className="px-2 py-0.5 rounded-md text-[10px] font-bold whitespace-nowrap"
-                      style={{ background: `${stg?.color}18`, color: stg?.color }}
-                    >
-                      {stg?.label}
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      {whatsappError === atendimento.id && (
+                        <span title="WhatsApp não enviado" className="w-2 h-2 rounded-full bg-orange-400 flex-shrink-0" />
+                      )}
+                      <div
+                        className="px-2 py-0.5 rounded-md text-[10px] font-bold whitespace-nowrap"
+                        style={{ background: `${stg?.color}18`, color: stg?.color }}
+                      >
+                        {stg?.label}
+                      </div>
                     </div>
                   </button>
                 );
@@ -496,6 +533,29 @@ export function AtendimentosPainel({ initialData, finalizados: initialFinalizado
           {selected.currentStage === stages.length - 1 && (
             <div className="mt-4 p-4 bg-green-50 rounded-xl text-center">
               <span className="text-sm font-medium text-green-600">✅ Atendimento concluído</span>
+            </div>
+          )}
+
+          {/* Alerta de falha no WhatsApp + botão reenviar */}
+          {whatsappError === selected.id && (
+            <div className="mt-3 p-3.5 bg-orange-50 border border-orange-200 rounded-xl flex items-start gap-3">
+              <span className="text-orange-500 text-lg flex-shrink-0">⚠️</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-orange-700">WhatsApp não enviado</p>
+                <p className="text-xs text-orange-600 mt-0.5">
+                  Tentamos 3 vezes e não conseguimos. O tutor ainda não foi notificado.
+                </p>
+              </div>
+              <button
+                onClick={handleReenviar}
+                disabled={loadingReenvio}
+                className="flex-shrink-0 text-xs font-semibold bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-1.5"
+              >
+                {loadingReenvio ? (
+                  <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : '↺'}
+                {loadingReenvio ? 'Reenviando...' : 'Reenviar'}
+              </button>
             </div>
           )}
 
