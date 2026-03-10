@@ -8,21 +8,23 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: '#f0f7ff',
-          100: '#e0effe',
-          200: '#bae0fd',
-          300: '#7cc8fb',
-          400: '#36aaf5',
-          500: '#0c8ee6',
-          600: '#0070c4',
-          700: '#01599f',
-          800: '#064c83',
-          900: '#0b406d',
-        },
+        border: 'rgb(var(--border) / <alpha-value>)',
+        input: 'rgb(var(--border) / <alpha-value>)',
+        ring: 'rgb(var(--ring) / <alpha-value>)',
+        background: 'rgb(var(--background) / <alpha-value>)',
+        foreground: 'rgb(var(--foreground) / <alpha-value>)',
+        
         vettrack: {
-          dark: '#1a1a2e',
-          accent: '#3b82f6',
+          /* Dark Teal - Headers and key text */
+          dark: '#0F2328',
+          /* Sage Green / Teal - Main Buttons and highlights */
+          accent: '#46A094',
+          /* Light Mint - Success states */
+          success: '#10B981',
+          /* Soft Coral - Errors */
+          error: '#F87171',
+          /* Warm gray - Borders and subtle backgrounds */
+          muted: '#EBF0F0'
         },
       },
       fontFamily: {

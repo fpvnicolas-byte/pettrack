@@ -6,23 +6,36 @@
 
 @layer base {
   :root {
-    --background: 245 243 239;
-    --foreground: 26 26 46;
+    /* Warm Off-White / Cream Base for welcoming feel */
+    --background: 250 249 246;
+    /* Dark Teal for primary text - professional, trustworthy */
+    --foreground: 15 35 40;
+    
+    /* Muted colors */
     --muted: 240 240 240;
-    --muted-foreground: 136 136 136;
-    --accent: 59 130 246;
+    --muted-foreground: 105 115 120;
+    
+    /* Sage / Muted Mint Green for Accents & Success */
+    --accent: 70 160 148;
     --accent-foreground: 255 255 255;
-    --destructive: 239 68 68;
-    --border: 229 225 219;
-    --ring: 59 130 246;
+    
+    /* Destructive/Alerts (Subtle Coral/Red) */
+    --destructive: 220 80 80;
+    
+    /* Core Borders */
+    --border: 226 232 230;
+    --ring: 70 160 148;
+    
+    /* Layout utilities */
+    --radius: 0.75rem;
   }
 
   * {
-    @apply box-border;
+    @apply box-border border-border;
   }
 
   body {
-    @apply bg-[rgb(var(--background))] text-[rgb(var(--foreground))] font-sans antialiased;
+    @apply bg-[rgb(var(--background))] text-[rgb(var(--foreground))] font-sans antialiased selection:bg-[rgb(var(--accent))] selection:text-white;
   }
 }
 
