@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import type { StatusNotificacao } from '@prisma/client';
 
 // Verificação do webhook (GET)
 export async function GET(request: Request) {
@@ -35,7 +34,7 @@ export async function POST(request: Request) {
           const waMessageId = status.id;
           const waStatus = status.status;
 
-          const statusMap: Record<string, StatusNotificacao> = {
+          const statusMap: Record<string, 'ENVIADO' | 'ENTREGUE' | 'LIDO' | 'ERRO'> = {
             sent: 'ENVIADO',
             delivered: 'ENTREGUE',
             read: 'LIDO',
