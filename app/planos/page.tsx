@@ -24,16 +24,16 @@ export default async function PlanosPage() {
     <div className="min-h-screen bg-[#f8f9fc] font-sans">
       {/* NAVBAR */}
       <nav className="sticky top-0 z-50 bg-[#1a1a2e]/95 backdrop-blur-sm border-b border-white/5">
-        <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-5 h-14 sm:h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl">🐾</span>
-            <span className="font-bold text-white text-lg tracking-tight">VetTrack</span>
+            <span className="text-xl sm:text-2xl">🐾</span>
+            <span className="font-bold text-white text-base sm:text-lg tracking-tight">VetTrack</span>
           </Link>
-          <div className="flex items-center gap-3">
-            <Link href="/login" className="text-sm text-gray-400 hover:text-white transition-colors px-3 py-1.5">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link href="/login" className="text-sm text-gray-400 hover:text-white transition-colors px-3 py-2 min-h-[40px] flex items-center">
               Entrar
             </Link>
-            <Link href="/register" className="text-sm bg-vettrack-accent hover:opacity-90 text-white px-4 py-2 rounded-lg font-medium transition-opacity">
+            <Link href="/register" className="text-sm bg-vettrack-accent hover:opacity-90 text-white px-3 sm:px-4 py-2 rounded-lg font-medium transition-opacity min-h-[40px] flex items-center">
               Criar conta
             </Link>
           </div>
@@ -41,43 +41,42 @@ export default async function PlanosPage() {
       </nav>
 
       {/* HEADER */}
-      <section className="bg-[#1a1a2e] text-white pt-16 pb-20 md:pt-24 md:pb-32 px-5 text-center relative overflow-hidden">
+      <section className="bg-[#1a1a2e] text-white pt-12 pb-24 sm:pt-16 sm:pb-28 md:pt-24 md:pb-36 px-4 sm:px-5 text-center relative overflow-hidden">
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-64 bg-vettrack-accent/10 blur-[100px] rounded-full pointer-events-none"></div>
         <div className="max-w-3xl mx-auto relative z-10">
-          <span className="inline-block bg-white/10 text-white/80 text-[10px] font-bold px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase border border-white/10">
+          <span className="inline-block bg-white/10 text-white/80 text-[10px] font-bold px-4 py-1.5 rounded-full mb-5 tracking-widest uppercase border border-white/10">
             Preço único, sem surpresas
           </span>
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold mb-4 sm:mb-6 tracking-tight leading-tight">
             Simples de entender.<br />Difícil de largar.
           </h1>
-          <p className="text-gray-300 text-xl font-medium">
+          <p className="text-gray-300 text-base sm:text-xl font-medium">
             7 dias grátis para sentir a diferença. Sem cartão de crédito.
           </p>
         </div>
       </section>
 
       {/* CARDS */}
-      <section className="py-24 px-5 -mt-20 relative z-20">
+      <section className="py-10 sm:py-16 md:py-24 px-4 sm:px-5 -mt-16 sm:-mt-20 relative z-20">
         <div className="max-w-5xl mx-auto">
-          <div className="grid sm:grid-cols-3 gap-6 items-end">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 items-end">
             {PLANOS.map((plano) => (
               <div
                 key={plano.id}
-                className={`relative bg-white rounded-[2.5rem] shadow-sm border flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${
-                  plano.destaque
-                    ? 'border-vettrack-accent ring-[4px] ring-vettrack-accent/20 shadow-xl shadow-vettrack-accent/10 transform scale-105 z-10'
+                className={`relative bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-sm border flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${plano.destaque
+                    ? 'border-vettrack-accent ring-[3px] sm:ring-[4px] ring-vettrack-accent/20 shadow-xl shadow-vettrack-accent/10 sm:transform sm:scale-105 z-10 mt-6 sm:mt-0'
                     : 'border-gray-100'
-                }`}
+                  }`}
               >
                 {plano.destaque && (
-                  <div className="absolute -top-4 left-0 right-0 flex justify-center">
-                    <span className="bg-vettrack-accent text-white text-[10px] uppercase tracking-widest font-bold px-5 py-2 rounded-full shadow-lg shadow-vettrack-accent/30 flex items-center gap-1.5">
+                  <div className="absolute -top-5 left-0 right-0 flex justify-center">
+                    <span className="bg-vettrack-accent text-white text-[10px] uppercase tracking-widest font-bold px-5 py-2 rounded-full shadow-lg shadow-vettrack-accent/30 flex items-center gap-1.5 whitespace-nowrap">
                       ⭐ Mais escolhido
                     </span>
                   </div>
                 )}
 
-                <div className="p-6 border-b border-gray-100">
+                <div className="p-5 sm:p-6 border-b border-gray-100">
                   <div className="font-bold text-[#1a1a2e] text-xl mb-1">{plano.nome}</div>
                   <div className="text-gray-400 text-xs mb-4">{plano.descricao}</div>
 
@@ -89,7 +88,7 @@ export default async function PlanosPage() {
                   ) : plano.preco === -1 ? (
                     <div>
                       <span className="text-3xl font-bold text-[#1a1a2e]">Sob consulta</span>
-                      <div className="mt-1 inline-flex items-center gap-1.5 bg-green-50 text-green-700 text-[11px] font-semibold px-2.5 py-1 rounded-full">
+                      <div className="mt-2 inline-flex items-center gap-1.5 bg-green-50 text-green-700 text-[11px] font-semibold px-2.5 py-1 rounded-full">
                         <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>
                         SLA 99% garantido
                       </div>
@@ -102,7 +101,7 @@ export default async function PlanosPage() {
                   )}
                 </div>
 
-                <div className="p-6 flex-1 flex flex-col gap-5">
+                <div className="p-5 sm:p-6 flex-1 flex flex-col gap-5">
                   <ul className="space-y-2.5 flex-1">
                     {plano.features.map((f) => (
                       <li key={f} className="flex items-start gap-2 text-sm text-gray-700">
@@ -123,7 +122,7 @@ export default async function PlanosPage() {
                       <div className="relative group">
                         <button
                           disabled
-                          className="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-gray-100 text-gray-400 cursor-not-allowed"
+                          className="w-full py-3.5 px-4 rounded-xl font-semibold text-sm bg-gray-100 text-gray-400 cursor-not-allowed min-h-[48px]"
                         >
                           {plano.cta}
                         </button>
@@ -133,20 +132,19 @@ export default async function PlanosPage() {
                         </div>
                       </div>
                     ) : (
-                    <Link
-                      href={plano.ctaHref}
-                      target={plano.id === 'ENTERPRISE' ? '_blank' : undefined}
-                      rel={plano.id === 'ENTERPRISE' ? 'noopener noreferrer' : undefined}
-                      className={`w-full text-center py-3 px-4 rounded-xl font-semibold text-sm transition-all ${
-                        plano.destaque
-                          ? 'bg-vettrack-accent hover:opacity-90 text-white'
-                          : plano.id === 'ENTERPRISE'
-                          ? 'bg-[#1a1a2e] hover:bg-[#2a2a4e] text-white'
-                          : 'bg-gray-100 hover:bg-gray-200 text-[#1a1a2e]'
-                      }`}
-                    >
-                      {plano.cta}
-                    </Link>
+                      <Link
+                        href={plano.ctaHref}
+                        target={plano.id === 'ENTERPRISE' ? '_blank' : undefined}
+                        rel={plano.id === 'ENTERPRISE' ? 'noopener noreferrer' : undefined}
+                        className={`w-full text-center py-3.5 px-4 rounded-xl font-semibold text-sm transition-all min-h-[48px] flex items-center justify-center ${plano.destaque
+                            ? 'bg-vettrack-accent hover:opacity-90 text-white'
+                            : plano.id === 'ENTERPRISE'
+                              ? 'bg-[#1a1a2e] hover:bg-[#2a2a4e] text-white'
+                              : 'bg-gray-100 hover:bg-gray-200 text-[#1a1a2e]'
+                          }`}
+                      >
+                        {plano.cta}
+                      </Link>
                     )
                   ) : (
                     <CheckoutButton
@@ -165,7 +163,7 @@ export default async function PlanosPage() {
       </section>
 
       {/* FAQ */}
-      <section className="py-16 px-5 bg-white">
+      <section className="py-12 sm:py-16 px-4 sm:px-5 bg-white">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-2xl font-bold text-[#1a1a2e] text-center mb-10">Perguntas frequentes</h2>
           <div className="space-y-6">
@@ -205,13 +203,13 @@ export default async function PlanosPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-[#1a1a2e] py-20 px-5 text-center">
+      <section className="bg-[#1a1a2e] py-14 sm:py-20 px-4 sm:px-5 text-center">
         <div className="max-w-xl mx-auto">
-          <h2 className="text-3xl font-bold text-white mb-4">Pronto para transformar seu atendimento?</h2>
-          <p className="text-gray-400 mb-8">7 dias grátis. Sem cartão. Cancele quando quiser.</p>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">Pronto para transformar seu atendimento?</h2>
+          <p className="text-gray-400 mb-8 text-sm sm:text-base">7 dias grátis. Sem cartão. Cancele quando quiser.</p>
           <Link
             href="/register"
-            className="inline-block bg-vettrack-accent hover:opacity-90 text-white px-10 py-4 rounded-xl font-semibold text-lg transition-opacity"
+            className="inline-block bg-vettrack-accent hover:opacity-90 text-white px-8 sm:px-10 py-4 rounded-xl font-semibold text-base sm:text-lg transition-opacity min-h-[52px] flex items-center justify-center max-w-xs mx-auto"
           >
             Criar conta grátis
           </Link>
@@ -219,8 +217,8 @@ export default async function PlanosPage() {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-[#111120] py-10 px-5 text-center text-gray-600 text-sm">
-        <div className="flex items-center justify-center gap-2 mb-4">
+      <footer className="bg-[#111120] py-8 sm:py-10 px-4 sm:px-5 text-center text-gray-600 text-sm">
+        <div className="flex items-center justify-center gap-2 mb-3">
           <span className="text-xl">🐾</span>
           <span className="font-bold text-gray-400">VetTrack</span>
         </div>
