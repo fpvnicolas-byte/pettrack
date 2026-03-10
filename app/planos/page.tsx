@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { CheckoutButton } from '@/components/planos/checkout-button';
 import { PLANOS } from '@/lib/planos';
+import { createClient } from '@/lib/supabase/server';
 
 export const metadata = {
   title: 'Planos — VetTrack',
@@ -15,7 +16,10 @@ function formatPreco(centavos: number) {
   });
 }
 
-export default function PlanosPage() {
+export default async function PlanosPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const planoAtual = user?.app_metadata?.plano as string | undefined;
   return (
     <div className="min-h-screen bg-[#f8f9fc] font-sans">
       {/* NAVBAR */}
@@ -115,6 +119,20 @@ export default function PlanosPage() {
                   </ul>
 
                   {plano.ctaHref ? (
+                    plano.id === 'TRIAL' && planoAtual ? (
+                      <div className="relative group">
+                        <button
+                          disabled
+                          className="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-gray-100 text-gray-400 cursor-not-allowed"
+                        >
+                          {plano.cta}
+                        </button>
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-[#1a1a2e] text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
+                          Plano já adquirido
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#1a1a2e]" />
+                        </div>
+                      </div>
+                    ) : (
                     <Link
                       href={plano.ctaHref}
                       target={plano.id === 'ENTERPRISE' ? '_blank' : undefined}
@@ -129,6 +147,7 @@ export default function PlanosPage() {
                     >
                       {plano.cta}
                     </Link>
+                    )
                   ) : (
                     <CheckoutButton
                       planoId={plano.id}

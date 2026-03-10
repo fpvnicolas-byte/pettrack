@@ -77,7 +77,7 @@ export default async function LandingPage() {
                 Ver preços
               </Link>
             </div>
-            <p className="text-xs text-gray-500 mt-5 font-semibold">14 dias grátis. Cancela se não gostar.</p>
+            <p className="text-xs text-gray-500 mt-5 font-semibold">7 dias grátis. Cancela se não gostar.</p>
           </div>
 
           <div className="relative w-full h-[350px] md:h-[450px] mt-10 md:mt-0 flex items-center justify-center">
@@ -331,7 +331,7 @@ export default async function LandingPage() {
       <section className="bg-[#1a1a2e] py-24 px-5 text-center">
         <div className="max-w-2xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Comece hoje, é grátis por 14 dias
+            Comece hoje, é grátis por 7 dias
           </h2>
           <p className="text-gray-400 text-lg mb-8">
             Sem cartão de crédito. Configure em minutos e já use no primeiro atendimento.
