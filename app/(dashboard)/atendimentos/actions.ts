@@ -57,7 +57,8 @@ export async function advanceStage(atendimentoId: string, formData?: FormData) {
   // 4. Atualizar banco
   const lastStage = isLastStage(nextStage, stages);
 
-  await prisma.$transaction(async (tx) => {
+  type TxClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
+  await prisma.$transaction(async (tx: TxClient) => {
     await tx.atendimento.update({
       where: { id: atendimentoId },
       data: {
