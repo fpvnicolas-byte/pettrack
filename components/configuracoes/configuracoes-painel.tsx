@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { updateClinica, updateWhatsapp } from '@/app/(dashboard)/configuracoes/actions';
+import { updateClinica, updateWhatsapp, createPortalSession } from '@/app/(dashboard)/configuracoes/actions';
 import { inviteMembro, removeMembro } from '@/app/(dashboard)/configuracoes/equipe-actions';
+import type { AssinaturaInfo } from '@/app/(dashboard)/configuracoes/page';
 
 interface Clinica {
   id: string;
@@ -27,19 +28,22 @@ interface ConfiguracoesPainelProps {
   isAdmin: boolean;
   membros: Membro[];
   currentUserId: string;
+  assinatura: AssinaturaInfo;
 }
 
-export function ConfiguracoesPainel({ clinica, isAdmin, membros: initialMembros, currentUserId }: ConfiguracoesPainelProps) {
+export function ConfiguracoesPainel({ clinica, isAdmin, membros: initialMembros, currentUserId, assinatura }: ConfiguracoesPainelProps) {
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
   const [clinicaError, setClinicaError] = useState<string | null>(null);
   const [waError, setWaError] = useState<string | null>(null);
   const [inviteError, setInviteError] = useState<string | null>(null);
+  const [portalError, setPortalError] = useState<string | null>(null);
   const [showToken, setShowToken] = useState(false);
   const [membros, setMembros] = useState(initialMembros);
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [isPendingClinica, startClinica] = useTransition();
   const [isPendingWa, startWa] = useTransition();
   const [isPendingInvite, startInvite] = useTransition();
+  const [isPendingPortal, startPortal] = useTransition();
 
   function showToast(msg: string, type: 'success' | 'error' = 'success') {
     setToast({ msg, type });
@@ -95,12 +99,38 @@ export function ConfiguracoesPainel({ clinica, isAdmin, membros: initialMembros,
     });
   }
 
+  function handlePortal() {
+    setPortalError(null);
+    startPortal(async () => {
+      const result = await createPortalSession();
+      if (result.error) {
+        setPortalError(result.error);
+        return;
+      }
+      if (result.url) window.location.href = result.url;
+    });
+  }
+
   const PLANO_LABEL: Record<string, string> = {
     TRIAL: 'Trial (gratuito)',
     BASICO: 'Básico',
     PROFISSIONAL: 'Profissional',
     PREMIUM: 'Premium',
   };
+
+  const STATUS_LABEL: Record<string, { label: string; color: string }> = {
+    active:    { label: 'Ativa', color: 'bg-green-50 text-green-700 border-green-100' },
+    trialing:  { label: 'Em trial', color: 'bg-blue-50 text-blue-700 border-blue-100' },
+    past_due:  { label: 'Pagamento pendente', color: 'bg-amber-50 text-amber-700 border-amber-100' },
+    canceled:  { label: 'Cancelada', color: 'bg-red-50 text-red-700 border-red-100' },
+    unpaid:    { label: 'Não paga', color: 'bg-red-50 text-red-700 border-red-100' },
+    incomplete: { label: 'Incompleta', color: 'bg-gray-50 text-gray-600 border-gray-100' },
+  };
+
+  function formatarData(iso: string | null) {
+    if (!iso) return null;
+    return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+  }
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
@@ -120,9 +150,6 @@ export function ConfiguracoesPainel({ clinica, isAdmin, membros: initialMembros,
 
       <div className="mb-6">
         <h1 className="text-xl font-bold text-vettrack-dark">Configurações</h1>
-        <p className="text-sm text-gray-500 mt-0.5">
-          Plano atual: <span className="font-medium text-vettrack-accent">{PLANO_LABEL[clinica.plano] ?? clinica.plano}</span>
-        </p>
       </div>
 
       {!isAdmin && (
@@ -130,6 +157,97 @@ export function ConfiguracoesPainel({ clinica, isAdmin, membros: initialMembros,
           Apenas administradores podem alterar configurações.
         </div>
       )}
+
+      {/* Seção: Assinatura */}
+      <section className="bg-white rounded-2xl border border-gray-100 shadow-sm mb-6 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100">
+          <h2 className="font-bold text-vettrack-dark text-sm">Plano e Assinatura</h2>
+          <p className="text-xs text-gray-400 mt-0.5">Detalhes do seu plano e cobrança</p>
+        </div>
+
+        <div className="p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+            {/* Plano atual */}
+            <div className="bg-gray-50 rounded-xl p-4 flex flex-col gap-1">
+              <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Plano atual</span>
+              <span className="text-base font-bold text-vettrack-dark">
+                {assinatura.planoNome ?? PLANO_LABEL[clinica.plano] ?? clinica.plano}
+              </span>
+            </div>
+
+            {/* Status */}
+            <div className="bg-gray-50 rounded-xl p-4 flex flex-col gap-1">
+              <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Status</span>
+              {assinatura.status ? (
+                <span className={`inline-flex items-center self-start px-2.5 py-0.5 rounded-full text-xs font-semibold border ${STATUS_LABEL[assinatura.status]?.color ?? 'bg-gray-50 text-gray-500 border-gray-100'}`}>
+                  {STATUS_LABEL[assinatura.status]?.label ?? assinatura.status}
+                </span>
+              ) : (
+                <span className="text-sm font-medium text-gray-500">
+                  {clinica.plano === 'TRIAL' ? 'Trial gratuito' : 'Ativo'}
+                </span>
+              )}
+            </div>
+
+            {/* Renovação / Cancelamento */}
+            <div className="bg-gray-50 rounded-xl p-4 flex flex-col gap-1">
+              <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide">
+                {assinatura.cancelamentoEm ? 'Acesso até' : 'Renovação em'}
+              </span>
+              <span className="text-sm font-medium text-vettrack-dark">
+                {assinatura.cancelamentoEm
+                  ? formatarData(assinatura.cancelamentoEm)
+                  : assinatura.renovacaoEm
+                  ? formatarData(assinatura.renovacaoEm)
+                  : <span className="text-gray-400">—</span>
+                }
+              </span>
+            </div>
+          </div>
+
+          {/* Aviso trial */}
+          {clinica.plano === 'TRIAL' && !assinatura.temStripe && (
+            <div className="mb-4 bg-blue-50 border border-blue-100 text-blue-700 text-xs px-4 py-3 rounded-xl">
+              Você está no plano Trial. Para continuar usando o VetTrack após o período gratuito, assine um plano.
+            </div>
+          )}
+
+          {/* Botão portal Stripe */}
+          {portalError && (
+            <div className="mb-3 bg-red-50 border border-red-100 text-red-600 text-xs px-4 py-2.5 rounded-xl">
+              {portalError}
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-2">
+            {assinatura.temStripe ? (
+              <button
+                onClick={handlePortal}
+                disabled={isPendingPortal}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-vettrack-dark text-white text-sm font-medium hover:bg-vettrack-dark/90 transition-colors disabled:opacity-50"
+              >
+                {isPendingPortal ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Abrindo portal...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                    Gerenciar assinatura
+                  </>
+                )}
+              </button>
+            ) : (
+              <div className="text-xs text-gray-400 bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
+                Gerenciamento de assinatura disponível em breve. Entre em contato pelo suporte para alterações no plano.
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* Seção: Dados da Clínica */}
       <section className="bg-white rounded-2xl border border-gray-100 shadow-sm mb-6 overflow-hidden">

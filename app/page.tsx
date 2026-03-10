@@ -222,7 +222,7 @@ export default async function LandingPage() {
                 step: '2',
                 title: 'Avanço Cadenciável',
                 desc: 'A cada etapa do processo (Banho, Exames), avança-se com 2 toques. Notificação transparente e amigável.',
-                icon: '�',
+                icon: '📲',
                 rotate: 'md:translate-y-8',
                 color: 'bg-vettrack-accent/10 text-vettrack-accent'
               },

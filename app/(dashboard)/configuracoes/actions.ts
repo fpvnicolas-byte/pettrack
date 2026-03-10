@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import { stripe } from '@/lib/stripe';
+import { headers } from 'next/headers';
 
 async function getAdminClinica() {
   const supabase = await createClient();
@@ -76,4 +78,43 @@ export async function updateWhatsapp(formData: FormData) {
 
   revalidatePath('/configuracoes');
   return { success: true };
+}
+
+// ===== Billing / Stripe =====
+
+async function getClinicaAutenticada() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Não autenticado');
+  const clinicaId = user.app_metadata?.clinica_id;
+  if (!clinicaId) throw new Error('Clínica não encontrada');
+  return { user, clinicaId };
+}
+
+export async function createPortalSession(): Promise<{ url?: string; error?: string }> {
+  try {
+    const { clinicaId } = await getClinicaAutenticada();
+
+    const clinica = await prisma.clinica.findUnique({
+      where: { id: clinicaId },
+      select: { stripeCustomerId: true },
+    });
+
+    if (!clinica?.stripeCustomerId) {
+      return { error: 'Assinatura Stripe não encontrada. Entre em contato com o suporte.' };
+    }
+
+    const headersList = await headers();
+    const origin = headersList.get('origin') ?? process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+
+    const session = await stripe.billingPortal.sessions.create({
+      customer: clinica.stripeCustomerId,
+      return_url: `${origin}/configuracoes`,
+    });
+
+    return { url: session.url };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Erro ao acessar portal da Stripe';
+    return { error: msg };
+  }
 }
