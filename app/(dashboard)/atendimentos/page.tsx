@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
+import { getLimites } from '@/lib/planos.limits';
 import { AtendimentosPainel } from '@/components/atendimento/painel';
 import type { AtendimentoWithRelations } from '@/types';
 
@@ -12,6 +13,9 @@ export default async function AtendimentosPage() {
 
   const inicioDia = new Date();
   inicioDia.setHours(0, 0, 0, 0);
+
+  const clinica = await prisma.clinica.findUnique({ where: { id: clinicaId }, select: { plano: true } });
+  const limites = clinica ? getLimites(clinica.plano) : { uploadMidia: false };
 
   const [atendimentos, finalizados, servicos, pets] = await Promise.all([
     prisma.atendimento.findMany({
@@ -39,6 +43,7 @@ export default async function AtendimentosPage() {
         finalizados={finalizados as unknown as AtendimentoWithRelations[]}
         servicos={servicos}
         pets={pets}
+        uploadMidiaPermitido={limites.uploadMidia}
       />
     </div>
   );

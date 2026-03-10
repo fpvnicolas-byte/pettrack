@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { prisma } from '@/lib/prisma';
+import { getLimites } from '@/lib/planos.limits';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
@@ -31,6 +32,18 @@ export async function inviteMembro(formData: FormData) {
 
   const parsed = inviteSchema.safeParse(raw);
   if (!parsed.success) return { error: parsed.error.errors[0].message };
+
+  // Verificar limite de profissionais do plano
+  const clinica = await prisma.clinica.findUnique({ where: { id: clinicaId }, select: { plano: true } });
+  if (clinica) {
+    const limites = getLimites(clinica.plano);
+    if (limites.maxProfissionais !== null) {
+      const totalAtivos = await prisma.usuario.count({ where: { clinicaId, ativo: true } });
+      if (totalAtivos >= limites.maxProfissionais) {
+        return { error: `O plano Trial permite apenas ${limites.maxProfissionais} profissional. Faça upgrade para convidar mais membros.` };
+      }
+    }
+  }
 
   // Verificar se já existe na clínica
   const existing = await prisma.usuario.findFirst({
