@@ -26,7 +26,7 @@ export async function advanceStage(atendimentoId: string, formData?: FormData) {
 
   if (!atendimento) throw new Error('Atendimento não encontrado');
 
-  const stages = atendimento.servico.stages as StageDefinition[];
+  const stages = atendimento.servico.stages as unknown as StageDefinition[];
   const nextStage = atendimento.currentStage + 1;
 
   // 2. Validar

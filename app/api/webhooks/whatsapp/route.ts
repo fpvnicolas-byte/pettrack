@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import type { StatusNotificacao } from '@prisma/client';
 
 // Verificação do webhook (GET)
 export async function GET(request: Request) {
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
           const waMessageId = status.id;
           const waStatus = status.status;
 
-          const statusMap: Record<string, string> = {
+          const statusMap: Record<string, StatusNotificacao> = {
             sent: 'ENVIADO',
             delivered: 'ENTREGUE',
             read: 'LIDO',
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
           await prisma.notificacao.updateMany({
             where: { waMessageId },
             data: {
-              status: statusMap[waStatus] || 'ENVIADO',
+              status: statusMap[waStatus] ?? 'ENVIADO',
               ...(waStatus === 'delivered' && { entregueAt: new Date() }),
               ...(waStatus === 'read' && { lidoAt: new Date() }),
               ...(waStatus === 'failed' && {

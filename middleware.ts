@@ -12,13 +12,13 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
           supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            supabaseResponse.cookies.set(name, value, options as Parameters<typeof supabaseResponse.cookies.set>[2])
           );
         },
       },
@@ -43,8 +43,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Se logado e tentando acessar login/register, redirecionar para dashboard
-  // Exceto se for um convidado sem clinica_id ainda (precisa completar cadastro)
   const isAuthRoute = request.nextUrl.pathname === '/login' ||
     request.nextUrl.pathname === '/register';
 
@@ -54,10 +52,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Convidado autenticado sem clínica: forçar para completar cadastro
   const isConvitePage = request.nextUrl.pathname.startsWith('/convite');
   if (user && !user.app_metadata?.clinica_id && !isConvitePage && !isAuthRoute) {
-    // Verificar se tem convite pendente no user_metadata
     if (user.user_metadata?.clinica_id_convite) {
       const url = request.nextUrl.clone();
       url.pathname = '/convite/completar';
