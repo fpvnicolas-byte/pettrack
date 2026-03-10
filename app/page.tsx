@@ -3,12 +3,6 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { PublicNavbar } from '@/components/layout/public-navbar';
 
-export const metadata = {
-  title: 'VetTrack — Acompanhamento em Tempo Real para Clínicas Veterinárias',
-  description:
-    'Notifique tutores automaticamente via WhatsApp a cada etapa do atendimento. Sem app, sem complicação.',
-};
-
 export default async function LandingPage() {
   const supabase = await createClient();
   const {

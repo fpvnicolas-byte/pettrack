@@ -9,9 +9,68 @@ const quicksand = Quicksand({
   display: 'swap',
 });
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://vettrack.com.br';
+
 export const metadata: Metadata = {
-  title: 'VetTrack — Acompanhamento em Tempo Real',
-  description: 'Sistema de acompanhamento de atendimentos veterinários com notificação via WhatsApp',
+  metadataBase: new URL(appUrl),
+  title: {
+    default: 'VetTrack — Acompanhamento em Tempo Real para Clínicas Veterinárias',
+    template: '%s | VetTrack',
+  },
+  description:
+    'Notifique tutores automaticamente via WhatsApp a cada etapa do atendimento veterinário. Sem app, sem complicação. Ideal para clínicas e pet shops.',
+  keywords: [
+    'veterinário',
+    'clínica veterinária',
+    'pet shop',
+    'notificação WhatsApp',
+    'acompanhamento de atendimento',
+    'sistema veterinário',
+    'SaaS veterinário',
+    'VetTrack',
+  ],
+  authors: [{ name: 'VetTrack' }],
+  creator: 'VetTrack',
+  publisher: 'VetTrack',
+  robots: {
+    index: true,
+    follow: true,
+  },
+  icons: {
+    icon: [
+      { url: '/logo.png', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/logo.png', type: 'image/png' },
+    ],
+    shortcut: '/logo.png',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'pt_BR',
+    url: appUrl,
+    siteName: 'VetTrack',
+    title: 'VetTrack — Acompanhamento em Tempo Real para Clínicas Veterinárias',
+    description:
+      'Notifique tutores automaticamente via WhatsApp a cada etapa do atendimento. Sem app, sem complicação.',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'VetTrack — Acompanhamento em Tempo Real para Clínicas Veterinárias',
+        type: 'image/png',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'VetTrack — Acompanhamento em Tempo Real para Clínicas Veterinárias',
+    description:
+      'Notifique tutores automaticamente via WhatsApp a cada etapa do atendimento. Sem app, sem complicação.',
+    images: ['/og-image.png'],
+    creator: '@vettrack',
+  },
 };
 
 export const viewport = {
