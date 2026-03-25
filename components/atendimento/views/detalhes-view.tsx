@@ -94,7 +94,12 @@ export function DetalhesView({
                     <div className="inline-block px-2.5 py-1 bg-gray-100 rounded-lg text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">
                         {atendimento.servico.nome}
                     </div>
-                    <h2 className="text-2xl sm:text-3xl font-black text-vettrack-dark tracking-tight">{atendimento.pet.nome}</h2>
+                    <h2 className="text-2xl sm:text-3xl font-black text-vettrack-dark tracking-tight flex items-center gap-2">
+                        {atendimento.pet.nome}
+                        <span className="text-sm font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-lg">
+                            #{String(atendimento.pet.petCode).padStart(3, '0')}
+                        </span>
+                    </h2>
                     <p className="text-sm sm:text-base font-semibold text-gray-500 mt-0.5">
                         Raça {atendimento.pet.raca || "SRD"} • Peso: {(atendimento.pet as any).peso ? `${(atendimento.pet as any).peso}kg` : "N/I"}
                     </p>

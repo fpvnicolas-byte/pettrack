@@ -229,8 +229,9 @@ export function StageTracker({
                     <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto shadow-sm text-vettrack-success mb-3">
                         <Check className="w-8 h-8 font-bold" />
                     </div>
-                    <h4 className="text-vettrack-success font-bold text-lg mb-1">Pronto para retirar!</h4>
+                    <h4 className="text-vettrack-success font-bold text-lg mb-1">Concluído ✅</h4>
                     <p className="text-sm text-vettrack-success/80 font-medium">O atendimento foi concluído e o tutor notificado.</p>
+                    <p className="text-xs text-gray-400 mt-2">Será movido para finalizados em instantes...</p>
                 </div>
             )}
         </>

@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { advanceStage, deleteAtendimento, insertCustomStage } from '@/app/(dashboard)/atendimentos/actions';
+import { advanceStage, deleteAtendimento, insertCustomStage, confirmAndSendWhatsApp, revertStage } from '@/app/(dashboard)/atendimentos/actions';
 import { reenviarWhatsApp } from '@/app/(dashboard)/atendimentos/reenviar-action';
 import type { AtendimentoWithRelations, StageDefinition, CustomStageInput } from '@/types';
 import { getEffectiveStages, canInsertCustomStage } from '@/lib/stages/stage.config';
@@ -19,6 +19,7 @@ import { InsertStageModal } from './modals/insert-stage-modal';
 
 interface PetForSelect {
   id: string;
+  petCode: number;
   nome: string;
   especie: string;
   raca: string | null;
@@ -57,6 +58,21 @@ export function AtendimentosPainel({ initialData, finalizados: initialFinalizado
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
 
+  // -- Confirmation Flow (Undo before WhatsApp) --
+  const [confirmBanner, setConfirmBanner] = useState<{
+    atendimentoId: string;
+    petName: string;
+    tutorName: string;
+    countdown: number;
+    stageId: string;
+    whatsappMsg: string;
+    autoNotify: boolean;
+    mediaUrl?: string;
+    mediaType?: 'image' | 'video';
+  } | null>(null);
+  const confirmTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const confirmTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const supabase = useMemo(() => createClient(), []);
 
   // -- Sincronizações --
@@ -78,26 +94,19 @@ export function AtendimentosPainel({ initialData, finalizados: initialFinalizado
         (payload) => {
           if (payload.eventType === 'UPDATE') {
             const updated = payload.new as any;
-            if (updated.status === 'CONCLUIDO') {
-              setAtendimentos((prev) => prev.filter((a) => a.id !== updated.id));
-              setSelectedId((prev) => {
-                if (prev === updated.id) setMobileView('fila');
-                return prev === updated.id ? null : prev;
-              });
-            } else {
-              setAtendimentos((prev) =>
-                prev.map((a) =>
-                  a.id === updated.id
-                    ? {
-                        ...a,
-                        currentStage: updated.current_stage,
-                        status: updated.status,
-                        customStages: updated.custom_stages ?? null,
-                      }
-                    : a
-                )
-              );
-            }
+            // Update local state (completed atendimentos stay visible briefly via handleAdvance timeout)
+            setAtendimentos((prev) =>
+              prev.map((a) =>
+                a.id === updated.id
+                  ? {
+                      ...a,
+                      currentStage: updated.current_stage,
+                      status: updated.status,
+                      customStages: updated.custom_stages ?? null,
+                    }
+                  : a
+              )
+            );
           }
           if (payload.eventType === 'INSERT') {
             router.refresh();
@@ -124,6 +133,105 @@ export function AtendimentosPainel({ initialData, finalizados: initialFinalizado
   function clearMedia() {
     setMediaFile(null);
     setMediaPreview(null);
+  }
+
+  function clearConfirmBanner() {
+    if (confirmTimerRef.current) clearInterval(confirmTimerRef.current);
+    if (confirmTimeoutRef.current) clearTimeout(confirmTimeoutRef.current);
+    confirmTimerRef.current = null;
+    confirmTimeoutRef.current = null;
+    setConfirmBanner(null);
+  }
+
+  // Cleanup confirmation timers on unmount
+  useEffect(() => {
+    return () => {
+      if (confirmTimerRef.current) clearInterval(confirmTimerRef.current);
+      if (confirmTimeoutRef.current) clearTimeout(confirmTimeoutRef.current);
+    };
+  }, []);
+
+  async function handleUndo() {
+    if (!confirmBanner) return;
+    clearConfirmBanner();
+    try {
+      await revertStage(confirmBanner.atendimentoId);
+      // Revert local state
+      setAtendimentos((prev) =>
+        prev.map((a) =>
+          a.id === confirmBanner.atendimentoId
+            ? { ...a, currentStage: a.currentStage - 1, status: a.currentStage - 1 === 0 ? 'AGUARDANDO' as const : 'EM_ANDAMENTO' as const }
+            : a
+        )
+      );
+      // If it was completed, move it back from finalizados
+      setFinalizados((prev) => {
+        const reverted = prev.find((a) => a.id === confirmBanner.atendimentoId);
+        if (reverted) {
+          setAtendimentos((p) => [...p, { ...reverted, currentStage: reverted.currentStage - 1, status: 'EM_ANDAMENTO' as const }]);
+          return prev.filter((a) => a.id !== confirmBanner.atendimentoId);
+        }
+        return prev;
+      });
+      showToast('↩️ Estágio revertido!');
+      router.refresh();
+    } catch (err: any) {
+      showToast(`❌ Erro ao reverter: ${err.message}`);
+    }
+  }
+
+  function startConfirmCountdown(data: {
+    atendimentoId: string;
+    petName: string;
+    tutorName: string;
+    stageId: string;
+    whatsappMsg: string;
+    autoNotify: boolean;
+    mediaUrl?: string;
+    mediaType?: 'image' | 'video';
+  }) {
+    clearConfirmBanner();
+    const COUNTDOWN_SECONDS = 5;
+    setConfirmBanner({ ...data, countdown: COUNTDOWN_SECONDS });
+
+    confirmTimerRef.current = setInterval(() => {
+      setConfirmBanner((prev) => {
+        if (!prev || prev.countdown <= 1) return prev;
+        return { ...prev, countdown: prev.countdown - 1 };
+      });
+    }, 1000);
+
+    confirmTimeoutRef.current = setTimeout(async () => {
+      if (confirmTimerRef.current) clearInterval(confirmTimerRef.current);
+      confirmTimerRef.current = null;
+
+      if (data.autoNotify) {
+        try {
+          const result = await confirmAndSendWhatsApp({
+            atendimentoId: data.atendimentoId,
+            stageId: data.stageId,
+            whatsappMsg: data.whatsappMsg,
+            mediaUrl: data.mediaUrl,
+            mediaType: data.mediaType,
+          });
+          if (result.success) {
+            setConfirmBanner(null);
+            showToast(`📱 WhatsApp enviado para ${data.tutorName}!`);
+          } else {
+            setWhatsappError(data.atendimentoId);
+            setConfirmBanner(null);
+            showToast(`⚠️ WhatsApp falhou após 3 tentativas.`);
+          }
+        } catch {
+          setWhatsappError(data.atendimentoId);
+          setConfirmBanner(null);
+          showToast(`⚠️ Erro ao enviar WhatsApp.`);
+        }
+      } else {
+        setConfirmBanner(null);
+        showToast('Estágio avançado!');
+      }
+    }, COUNTDOWN_SECONDS * 1000);
   }
 
   function selectAtendimento(id: string) {
@@ -153,32 +261,49 @@ export function AtendimentosPainel({ initialData, finalizados: initialFinalizado
       const newStage = result.newStage;
       const isLast = newStage >= stages.length - 1;
 
+      // Phase A: Update local UI state (DB already updated)
       if (isLast) {
-        const concluido = { ...selected, currentStage: newStage, status: 'CONCLUIDO' as const };
-        setAtendimentos((prev) => prev.filter((a) => a.id !== selected.id));
-        setFinalizados((prev) => [concluido, ...prev]);
-        setSelectedId(null);
-        setMobileView('fila');
-        if (result.whatsappStatus === 'error') {
-          showToast(`✅ ${selected.pet.nome} concluído. WhatsApp falhou.`);
-        } else {
-          showToast(`✅ ${selected.pet.nome} concluído! Tutor notificado 📱`);
-        }
+        // Keep completed atendimento visible for 10s with CONCLUIDO status
+        setAtendimentos((prev) =>
+          prev.map((a) =>
+            a.id === selected.id
+              ? { ...a, currentStage: newStage, status: 'CONCLUIDO' as const }
+              : a
+          )
+        );
+        // Auto-move to finalizados after 10 seconds
+        const selectedRef = { ...selected, currentStage: newStage, status: 'CONCLUIDO' as const };
+        setTimeout(() => {
+          setAtendimentos((prev) => prev.filter((a) => a.id !== selectedRef.id));
+          setFinalizados((prev) => [selectedRef, ...prev]);
+          setSelectedId((prev) => {
+            if (prev === selectedRef.id) {
+              setMobileView('fila');
+              return null;
+            }
+            return prev;
+          });
+        }, 10_000);
       } else {
         setAtendimentos((prev) =>
           prev.map((a) =>
             a.id === selected.id ? { ...a, currentStage: newStage, status: 'EM_ANDAMENTO' } : a
           )
         );
-        if (result.whatsappStatus === 'error') {
-          setWhatsappError(selected.id);
-          showToast(`⚠️ Avançado, mas o WhatsApp não foi enviado após 3 tentativas.`);
-        } else if (result.whatsappStatus === 'sent') {
-          showToast(`WhatsApp enviado para ${selected.pet.tutor.nome.split(' ')[0]}! 📱`);
-        } else {
-          showToast(`Estágio avançado!`);
-        }
       }
+
+      // Phase B: Start confirmation countdown (WhatsApp sent after countdown)
+      startConfirmCountdown({
+        atendimentoId: selected.id,
+        petName: selected.pet.nome,
+        tutorName: selected.pet.tutor.nome.split(' ')[0],
+        stageId: result.stageId,
+        whatsappMsg: result.whatsappMsg,
+        autoNotify: result.autoNotify,
+        mediaUrl: result.mediaUrl,
+        mediaType: result.mediaType,
+      });
+
       router.refresh();
     } catch (err: any) {
       showToast(`❌ ${err.message}`);
@@ -266,6 +391,40 @@ export function AtendimentosPainel({ initialData, finalizados: initialFinalizado
           <span className="text-sm font-bold text-vettrack-dark pt-0.5">
             {notification.replace(/^[❌✅⚠️]\s*/, '')}
           </span>
+        </div>
+      )}
+
+      {/* Confirmation Banner (Undo before WhatsApp) */}
+      {confirmBanner && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] bg-white rounded-2xl px-5 py-4 shadow-xl border border-gray-100 flex items-center gap-4 animate-in slide-in-from-bottom-4 fade-in duration-300 max-w-md w-[calc(100%-2rem)]">
+          <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-lg flex-shrink-0">
+            ✅
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-vettrack-dark">Estágio avançado!</p>
+            {confirmBanner.autoNotify && (
+              <p className="text-xs text-gray-500 mt-0.5">
+                WhatsApp em {confirmBanner.countdown}s...
+              </p>
+            )}
+          </div>
+          <button
+            onClick={handleUndo}
+            className="text-sm font-bold text-vettrack-accent hover:text-[#3d8e82] bg-vettrack-accent/10 hover:bg-vettrack-accent/20 px-4 py-2 rounded-xl transition-all flex-shrink-0"
+          >
+            Desfazer
+          </button>
+          <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
+            <svg className="w-8 h-8 -rotate-90" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="15" fill="none" stroke="#e5e7eb" strokeWidth="3" />
+              <circle
+                cx="18" cy="18" r="15" fill="none" stroke="#4AABB3" strokeWidth="3"
+                strokeDasharray={`${(confirmBanner.countdown / 5) * 94.25} 94.25`}
+                strokeLinecap="round"
+                className="transition-all duration-1000 ease-linear"
+              />
+            </svg>
+          </div>
         </div>
       )}
 

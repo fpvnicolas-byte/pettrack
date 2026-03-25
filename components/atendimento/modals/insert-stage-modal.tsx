@@ -21,9 +21,19 @@ export function InsertStageModal({
   const [isPending, startTransition] = useTransition();
   const [label, setLabel] = useState('');
   const [whatsappMsg, setWhatsappMsg] = useState('');
+  const [color, setColor] = useState('#F59E0B');
   const [mediaAllowed, setMediaAllowed] = useState(false);
   const [autoNotify, setAutoNotify] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const STAGE_COLORS = [
+    { hex: '#F59E0B', label: 'Âmbar' },
+    { hex: '#EF4444', label: 'Vermelho' },
+    { hex: '#8B5CF6', label: 'Roxo' },
+    { hex: '#3B82F6', label: 'Azul' },
+    { hex: '#10B981', label: 'Verde' },
+    { hex: '#EC4899', label: 'Rosa' },
+  ];
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,7 +41,7 @@ export function InsertStageModal({
     if (!whatsappMsg.trim()) { setError('Informe a mensagem para o tutor'); return; }
     setError(null);
     startTransition(async () => {
-      await onSubmit({ label, whatsappMsg, mediaAllowed, autoNotify });
+      await onSubmit({ label, whatsappMsg, color, mediaAllowed, autoNotify });
     });
   }
 
@@ -101,6 +111,29 @@ export function InsertStageModal({
             <p className="text-[11px] text-gray-400 mt-1.5 px-1">
               O nome do pet é adicionado automaticamente pela plataforma.
             </p>
+          </div>
+
+          {/* Color Picker */}
+          <div>
+            <label className="block text-sm font-bold text-vettrack-dark mb-2">
+              Cor do Estágio
+            </label>
+            <div className="flex gap-2.5">
+              {STAGE_COLORS.map((c) => (
+                <button
+                  key={c.hex}
+                  type="button"
+                  title={c.label}
+                  onClick={() => setColor(c.hex)}
+                  className={`w-9 h-9 rounded-xl transition-all ${
+                    color === c.hex
+                      ? 'ring-2 ring-offset-2 ring-gray-400 scale-110'
+                      : 'hover:scale-105'
+                  }`}
+                  style={{ backgroundColor: c.hex }}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Options */}

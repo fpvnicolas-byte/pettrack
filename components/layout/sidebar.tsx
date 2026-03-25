@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Users, HeartPulse, Settings, LogOut, Menu, X, Stethoscope } from 'lucide-react';
+import { LayoutDashboard, Users, HeartPulse, Settings, LogOut, Menu, X, Stethoscope, Clock } from 'lucide-react';
 
 interface SidebarProps {
   usuario: {
@@ -19,6 +19,7 @@ interface SidebarProps {
 
 const navItems = [
   { href: '/atendimentos', label: 'Atendimentos', icon: LayoutDashboard },
+  { href: '/historico', label: 'Histórico', icon: Clock },
   { href: '/pets', label: 'Pets', icon: HeartPulse },
   { href: '/tutores', label: 'Tutores', icon: Users },
   { href: '/configuracoes', label: 'Configurações', icon: Settings },

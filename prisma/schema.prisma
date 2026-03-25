@@ -84,6 +84,7 @@ model Tutor {
 
 model Pet {
   id        String    @id @default(cuid())
+  petCode   Int       @map("pet_code")
   nome      String
   especie   Especie   @default(CANINO)
   raca      String?
@@ -100,6 +101,7 @@ model Pet {
   clinica      Clinica       @relation(fields: [clinicaId], references: [id])
   atendimentos Atendimento[]
 
+  @@unique([petCode, clinicaId])
   @@index([tutorId])
   @@index([clinicaId])
   @@map("pets")

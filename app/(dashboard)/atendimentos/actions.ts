@@ -7,7 +7,8 @@ import { getEffectiveStages, canInsertCustomStage } from '@/lib/stages/stage.con
 import { sendWhatsAppNow } from '@/lib/queue/whatsapp.worker';
 import { uploadAtendimentoMedia } from '@/lib/midia/upload';
 import { getLimites } from '@/lib/planos.limits';
-import type { StageDefinition, CustomStageInput } from '@/types';
+import type { StageDefinition, CustomStageInput, WhatsAppJobData } from '@/types';
+import type { SendResult } from '@/lib/queue/whatsapp.worker';
 import { revalidatePath } from 'next/cache';
 
 export async function advanceStage(atendimentoId: string, formData?: FormData) {
@@ -86,23 +87,19 @@ export async function advanceStage(atendimentoId: string, formData?: FormData) {
     });
   });
 
-  // 5. Enviar WhatsApp com retry automático (3 tentativas)
+  // 5. Return stage data for client-side confirmation flow (WhatsApp sent separately)
   const stage = stages[nextStage];
-  let whatsappStatus: 'sent' | 'error' | 'skipped' = 'skipped';
-
-  if (stage.autoNotify) {
-    const result = await sendWhatsAppNow({
-      atendimentoId,
-      stageId: stage.id,
-      whatsappMsg: stage.whatsappMsg,
-      mediaUrl,
-      mediaType,
-    });
-    whatsappStatus = result.success ? 'sent' : 'error';
-  }
 
   revalidatePath('/atendimentos');
-  return { success: true, newStage: nextStage, whatsappStatus };
+  return {
+    success: true,
+    newStage: nextStage,
+    stageId: stage.id,
+    whatsappMsg: stage.whatsappMsg,
+    autoNotify: stage.autoNotify,
+    mediaUrl,
+    mediaType,
+  };
 }
 
 export async function deleteAtendimento(atendimentoId: string) {
@@ -128,6 +125,54 @@ export async function deleteAtendimento(atendimentoId: string) {
     prisma.atendimento.delete({ where: { id: atendimentoId } }),
   ]);
   revalidatePath('/atendimentos');
+}
+
+export async function confirmAndSendWhatsApp(job: WhatsAppJobData): Promise<SendResult> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Não autenticado');
+
+  return sendWhatsAppNow(job);
+}
+
+export async function revertStage(atendimentoId: string): Promise<{ success: boolean }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Não autenticado');
+
+  const atendimento = await prisma.atendimento.findUnique({
+    where: { id: atendimentoId },
+    include: { servico: true },
+  });
+  if (!atendimento || atendimento.currentStage === 0) {
+    throw new Error('Não é possível reverter');
+  }
+
+  const previousStage = atendimento.currentStage - 1;
+  const wasCompleted = atendimento.status === 'CONCLUIDO';
+
+  type TxClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
+  await prisma.$transaction(async (tx: TxClient) => {
+    await tx.atendimento.update({
+      where: { id: atendimentoId },
+      data: {
+        currentStage: previousStage,
+        status: previousStage === 0 ? 'AGUARDANDO' : 'EM_ANDAMENTO',
+        ...(wasCompleted && { conclusaoAt: null }),
+      },
+    });
+    // Delete the most recent stage log for this atendimento
+    const latestLog = await tx.stageLog.findFirst({
+      where: { atendimentoId },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (latestLog) {
+      await tx.stageLog.delete({ where: { id: latestLog.id } });
+    }
+  });
+
+  revalidatePath('/atendimentos');
+  return { success: true };
 }
 
 export async function createAtendimento(formData: FormData) {
@@ -165,6 +210,19 @@ export async function createAtendimento(formData: FormData) {
     },
   });
 
+  // Send WhatsApp for Check-in if autoNotify is enabled on stage 0
+  const servico = await prisma.servico.findUnique({ where: { id: servicoId } });
+  const stages = (servico?.stages as unknown as StageDefinition[]) || [];
+  const checkinStage = stages[0];
+
+  if (checkinStage?.autoNotify) {
+    sendWhatsAppNow({
+      atendimentoId: atendimento.id,
+      stageId: checkinStage.id,
+      whatsappMsg: checkinStage.whatsappMsg,
+    }).catch((err) => console.error('[WhatsApp] Check-in notification failed:', err));
+  }
+
   revalidatePath('/atendimentos');
   return { success: true, id: atendimento.id };
 }
@@ -197,7 +255,7 @@ export async function insertCustomStage(
     id: `custom_${Date.now()}`,
     label: input.label.trim(),
     whatsappMsg: input.whatsappMsg.trim(),
-    color: '#F59E0B',
+    color: input.color || '#F59E0B',
     mediaAllowed: input.mediaAllowed,
     autoNotify: input.autoNotify,
     isCustom: true,

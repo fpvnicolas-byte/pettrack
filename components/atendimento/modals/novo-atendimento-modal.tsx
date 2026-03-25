@@ -9,6 +9,7 @@ const ESPECIES_EMOJI: Record<string, string> = {
 
 interface PetForSelect {
     id: string;
+    petCode: number;
     nome: string;
     especie: string;
     raca: string | null;
@@ -81,7 +82,7 @@ export function NovoAtendimentoModal({ onClose, onSuccess, pets, servicos }: Nov
                                     <div className="flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 border-vettrack-accent bg-vettrack-accent/5 transition-all">
                                         <span className="text-2xl">{ESPECIES_EMOJI[pet.especie] ?? '🐾'}</span>
                                         <div className="flex-1 min-w-0">
-                                            <div className="text-sm font-bold text-vettrack-dark truncate">{pet.nome}</div>
+                                            <div className="text-sm font-bold text-vettrack-dark truncate">{pet.nome} <span className="text-gray-400 font-medium">#{String(pet.petCode).padStart(3, '0')}</span></div>
                                             <div className="text-[11px] font-medium text-gray-500 truncate">{pet.tutor?.nome} • {pet.raca || 'SRD'}</div>
                                         </div>
                                         <button
@@ -127,7 +128,7 @@ export function NovoAtendimentoModal({ onClose, onSuccess, pets, servicos }: Nov
                                                 <span className="text-xl bg-gray-50 w-10 h-10 rounded-full flex items-center justify-center">{ESPECIES_EMOJI[p.especie] ?? '🐾'}</span>
                                                 <div className="flex-1 min-w-0">
                                                     <div className="text-sm font-bold text-vettrack-dark truncate">
-                                                        {p.nome}
+                                                        {p.nome} <span className="text-gray-400 font-medium">#{String(p.petCode).padStart(3, '0')}</span>
                                                     </div>
                                                     <div className="text-[11px] font-medium text-gray-400 truncate">Tutor: {p.tutor?.nome}</div>
                                                 </div>

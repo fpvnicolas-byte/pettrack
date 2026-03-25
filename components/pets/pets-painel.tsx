@@ -12,6 +12,7 @@ interface Tutor {
 
 interface Pet {
   id: string;
+  petCode: number;
   nome: string;
   especie: string;
   raca: string | null;
@@ -182,7 +183,10 @@ export function PetsPainel({ initialData, tutores }: PetsPainelProps) {
                           {esp.emoji}
                         </div>
                         <div>
-                          <div className="text-sm font-medium text-vettrack-dark">{pet.nome}</div>
+                          <div className="text-sm font-medium text-vettrack-dark flex items-center gap-1.5">
+                            {pet.nome}
+                            <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">#{String(pet.petCode).padStart(3, '0')}</span>
+                          </div>
                           <div className="text-[11px] text-gray-400">
                             {pet.sexo === 'MACHO' ? '♂ Macho' : pet.sexo === 'FEMEA' ? '♀ Fêmea' : ''}
                             {pet.peso ? ` · ${pet.peso}kg` : ''}

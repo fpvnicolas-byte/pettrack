@@ -42,6 +42,14 @@ export async function createPet(formData: FormData) {
     return { error: parsed.error.errors[0].message };
   }
 
+  // Get next petCode for this clinic
+  const lastPet = await prisma.pet.findFirst({
+    where: { clinicaId },
+    orderBy: { petCode: 'desc' },
+    select: { petCode: true },
+  });
+  const nextCode = (lastPet?.petCode ?? 0) + 1;
+
   await prisma.pet.create({
     data: {
       nome: parsed.data.nome,
@@ -52,6 +60,7 @@ export async function createPet(formData: FormData) {
       dataNasc: parsed.data.dataNasc ? new Date(parsed.data.dataNasc) : null,
       tutorId: parsed.data.tutorId,
       clinicaId,
+      petCode: nextCode,
     },
   });
 

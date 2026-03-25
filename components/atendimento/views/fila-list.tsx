@@ -124,8 +124,11 @@ export function FilaList({
                                                     {ESPECIES_EMOJI[atendimento.pet.especie] ?? '🐾'}
                                                 </div>
                                                 <div className="flex-1 min-w-0 pt-0.5">
-                                                    <div className="text-sm font-bold text-vettrack-dark truncate">
+                                                    <div className="text-sm font-bold text-vettrack-dark truncate flex items-center gap-1.5">
                                                         {atendimento.pet.nome}
+                                                        <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                                                            #{String(atendimento.pet.petCode).padStart(3, '0')}
+                                                        </span>
                                                     </div>
                                                     <div className="text-[11px] font-medium text-gray-500 truncate mt-0.5 flex items-center gap-1">
                                                         <span className="truncate max-w-[80px]">{atendimento.pet.raca || "Raça SRD"}</span>
@@ -184,7 +187,12 @@ export function FilaList({
                                         {ESPECIES_EMOJI[atendimento.pet.especie] ?? '🐾'}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <div className="text-sm font-bold text-vettrack-dark truncate">{atendimento.pet.nome}</div>
+                                        <div className="text-sm font-bold text-vettrack-dark truncate flex items-center gap-1.5">
+                                            {atendimento.pet.nome}
+                                            <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                                                #{String(atendimento.pet.petCode).padStart(3, '0')}
+                                            </span>
+                                        </div>
                                         <div className="text-[11px] text-gray-500 truncate font-medium">
                                             {atendimento.servico.nome} • {atendimento.pet.tutor.nome.split(' ')[0]}
                                         </div>

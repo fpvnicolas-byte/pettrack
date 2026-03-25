@@ -13,6 +13,7 @@ export interface StageDefinition {
 export interface CustomStageInput {
   label: string;
   whatsappMsg: string;
+  color: string;
   mediaAllowed: boolean;
   autoNotify: boolean;
 }
@@ -38,6 +39,7 @@ export interface AtendimentoWithRelations {
 
 export interface PetWithTutor {
   id: string;
+  petCode: number;
   nome: string;
   especie: string;
   raca: string | null;
